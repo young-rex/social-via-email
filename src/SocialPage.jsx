@@ -23,7 +23,7 @@ function formatTs(ts) {
 }
 
 function SocialPage({ session, setSession }) {
-  const [activeTab, setActiveTab] = useState('friends')
+  const [activeTab, setActiveTab] = useState('operations')
 
   function handleSignOut() {
     setSession(makeSession())

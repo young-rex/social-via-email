@@ -3,9 +3,9 @@ import SocialPage from './SocialPage'
 import { navigate } from './router'
 import { makePerson, makeSession } from './types'
 import { initTokenClient, fetchUserInfo } from './authGmail'
-import './App.css'
+import './LoginPage.css'
 
-function App() {
+function LoginPage() {
   const [pathname, setPathname] = useState(window.location.pathname)
   const [session, setSession] = useState(makeSession())
 
@@ -108,4 +108,4 @@ function App() {
   )
 }
 
-export default App
+export default LoginPage
