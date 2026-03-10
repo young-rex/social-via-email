@@ -1,6 +1,21 @@
+import { useState, useEffect } from 'react'
+import SocialPage from './SocialPage'
+import { navigate } from './router'
 import './App.css'
 
 function App() {
+  const [pathname, setPathname] = useState(window.location.pathname)
+
+  useEffect(() => {
+    const onPopState = () => setPathname(window.location.pathname)
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
+
+  if (pathname === '/social') {
+    return <SocialPage />
+  }
+
   return (
     <div className="container">
       <main className="main">
@@ -9,7 +24,11 @@ function App() {
         </section>
 
         <section className="login-section">
-          <a href="/auth/gmail" className="login-button">
+          <a
+            href="/social"
+            className="login-button"
+            onClick={e => { e.preventDefault(); navigate('/social') }}
+          >
             <img src="/gmail.png" alt="Gmail icon" className="gmail-icon" />
             Sign in to your Gmail
           </a>
