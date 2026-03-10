@@ -26,7 +26,7 @@ function App() {
             <li>Chats (linear conversation, 1:1 or group)</li>
             <li>Timelines of threads (tree-structured public discussions)</li>
           </ul>
-          <p><strong>Key principle: You own everything.</strong></p>
+          <p className="key-principle"><strong>Key principle: You own everything.</strong></p>
           <p>
             Your friends list, chats, and threads live in your own email account. SvE is open source — use the hosted
             version, run locally, or self-host. Your email is your identity and communication channel.

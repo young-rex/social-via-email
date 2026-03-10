@@ -24,12 +24,16 @@ a:hover {
 
 html, body {
   margin: 0;
-  min-width: 320px;
   height: 100%;
 }
 
 #root {
   height: 100%;
+  max-width: 780px;
+  min-width: 320px;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 h1 {
