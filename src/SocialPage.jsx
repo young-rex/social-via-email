@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { navigate } from './router'
+import { makeSession } from './types'
 import './SocialPage.css'
 
 const TABS = [
@@ -16,8 +17,18 @@ const CONTENT = {
   operations: 'You selected Operations.',
 }
 
-function SocialPage() {
+function formatTs(ts) {
+  if (!ts) return '—'
+  return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
+function SocialPage({ session, setSession }) {
   const [activeTab, setActiveTab] = useState('friends')
+
+  function handleSignOut() {
+    setSession(makeSession())
+    navigate('/')
+  }
 
   return (
     <div className="social-layout">
@@ -27,22 +38,32 @@ function SocialPage() {
 
       <div className="social-user-bar">
         <div className="social-user-info">
-          <span className="social-user-name">Alice Smith</span>
-          <span className="social-user-email">alice@smith-family.com</span>
+          {session.currentUser.imageUrl && (
+            <img
+              src={session.currentUser.imageUrl}
+              alt="profile"
+              className="social-user-avatar"
+              referrerPolicy="no-referrer"
+            />
+          )}
+          <div className="social-user-text">
+            <span className="social-user-name">{session.currentUser.name}</span>
+            <span className="social-user-email">{session.currentUser.email}</span>
+          </div>
         </div>
         <div className="social-action-buttons">
-          <button className="social-action-btn" onClick={() => navigate('/')}>
-            <span>Logout</span>
-            <span className="social-action-ts">last: 15:30</span>
+          <button className="social-action-btn" onClick={handleSignOut}>
+            <span>Sign out</span>
+            <span className="social-action-ts">last: {formatTs(session.lastLoginAt)}</span>
           </button>
           <button className="social-action-btn" title="Scan incoming emails">
             <span>Scan</span>
-            <span className="social-action-ts">last: 15:30</span>
+            <span className="social-action-ts">last: {formatTs(session.lastScanAt)}</span>
           </button>
           <button className="social-action-btn social-action-btn--save" title="Save state to email">
             <span>Save</span>
-            <span className="social-action-ts">last: 15:30</span>
-            <span className="dirty-dot" />
+            <span className="social-action-ts">last: {formatTs(session.lastSaveAt)}</span>
+            <span className="dirty-dot" style={{ visibility: session.isDataDirty ? 'visible' : 'hidden' }} />
           </button>
         </div>
       </div>

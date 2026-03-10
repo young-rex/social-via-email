@@ -24,6 +24,21 @@
 
 .social-user-info {
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.social-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.social-user-text {
+  display: flex;
   flex-direction: column;
   gap: 0.15rem;
 }

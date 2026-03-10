@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import SocialPage from './SocialPage'
 import { navigate } from './router'
+import { makePerson, makeSession } from './types'
+import { initTokenClient, fetchUserInfo } from './authGmail'
 import './App.css'
 
 function App() {
   const [pathname, setPathname] = useState(window.location.pathname)
+  const [session, setSession] = useState(makeSession())
 
   useEffect(() => {
     const onPopState = () => setPathname(window.location.pathname)
@@ -12,8 +15,46 @@ function App() {
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
+  const isLoggedIn = session.currentUser !== null
+
+  // Route guards
+  if (isLoggedIn && pathname === '/') {
+    navigate('/social')
+    return null
+  }
+  if (!isLoggedIn && pathname === '/social') {
+    navigate('/')
+    return null
+  }
+
   if (pathname === '/social') {
-    return <SocialPage />
+    return <SocialPage session={session} setSession={setSession} />
+  }
+
+  function handleSignIn(e) {
+    e.preventDefault()
+    function onSuccess(tokenResponse) {
+      fetchUserInfo(tokenResponse.access_token)
+        .then(({ email, name, imageUrl }) => {
+          const person = makePerson(email, name, imageUrl)
+          setSession(makeSession({
+            currentUser: person,
+            oauthToken: tokenResponse.access_token,
+            lastLoginAt: Date.now(),
+          }))
+          navigate('/social')
+        })
+        .catch(() => {
+          setSession(makeSession())
+          navigate('/')
+        })
+    }
+    function onError() {
+      setSession(makeSession())
+      navigate('/')
+    }
+    const tokenClient = initTokenClient(onSuccess, onError)
+    tokenClient.requestAccessToken()
   }
 
   return (
@@ -27,7 +68,7 @@ function App() {
           <a
             href="/social"
             className="login-button"
-            onClick={e => { e.preventDefault(); navigate('/social') }}
+            onClick={handleSignIn}
           >
             <img src="/gmail.png" alt="Gmail icon" className="gmail-icon" />
             Sign in to your Gmail
