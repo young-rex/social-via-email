@@ -1,34 +1,50 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
+    <div className="container">
+      <main className="main">
+        <section className="title-section">
+          <h1>Social via Email</h1>
+        </section>
+
+        <section className="login-section">
+          <a href="/auth/gmail" className="login-button">
+            <img src="/gmail.png" alt="Gmail icon" className="gmail-icon" />
+            Sign in to your Gmail
+          </a>
+        </section>
+
+        <section className="intro-section">
+          <p>
+            Social via Email (SvE) is a proof-of-concept (PoC) for Lemitar. It uses email addresses as Lemitar IDs to
+            demonstrate the concept (though domain names are the ideal form for Lemitar IDs).
+          </p>
+          <p>SvE demonstrates three main social features:</p>
+          <ul>
+            <li>Friends (email addresses)</li>
+            <li>Chats (linear conversation, 1:1 or group)</li>
+            <li>Timelines of threads (tree-structured public discussions)</li>
+          </ul>
+          <p><strong>Key principle: You own everything.</strong></p>
+          <p>
+            Your friends list, chats, and threads live in your own email account. SvE is open source — use the hosted
+            version, run locally, or self-host. Your email is your identity and communication channel.
+          </p>
+          <p>
+            SvE is a pure client-side React single-page application (SPA) with no server-side code. It requires Gmail
+            login via OAuth 2.0 (only short-lived access token; no credentials stored). All data stays in browser memory
+            during the ~1-hour session — no cookies, and no data leaves the browser.
+          </p>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <a href="https://github.com/lemina-model/social-via-email" target="_blank" rel="noopener noreferrer">
+          View on GitHub at https://github.com/lemina-model/social-via-email
         </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+      </footer>
+    </div>
   )
 }
 
