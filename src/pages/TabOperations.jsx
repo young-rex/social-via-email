@@ -6,7 +6,7 @@ function formatTime(ms) {
   return new Date(ms).toLocaleTimeString('en-GB')
 }
 
-function OperationsTab() {
+function TabOperations() {
   const clearOpLogs = useAppStore((s) => s.clearOpLogs)
   const opLogs      = useAppStore((s) => s.opLogs)
 
@@ -26,4 +26,4 @@ function OperationsTab() {
   )
 }
 
-export default OperationsTab
+export default TabOperations

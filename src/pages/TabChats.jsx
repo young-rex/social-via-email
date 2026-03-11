@@ -1,6 +1,6 @@
 import { useAppStore } from '../data/dataStore'
 
-function ChatsTab() {
+function TabChats() {
   const chats = useAppStore((s) => s.chats)
 
   return (
@@ -11,4 +11,4 @@ function ChatsTab() {
   )
 }
 
-export default ChatsTab
+export default TabChats

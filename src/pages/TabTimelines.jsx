@@ -1,6 +1,6 @@
 import { useAppStore } from '../data/dataStore'
 
-function TimelinesTab() {
+function TabTimelines() {
   const timelines = useAppStore((s) => s.timelines)
 
   return (
@@ -11,4 +11,4 @@ function TimelinesTab() {
   )
 }
 
-export default TimelinesTab
+export default TabTimelines

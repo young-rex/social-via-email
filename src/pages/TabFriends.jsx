@@ -1,6 +1,6 @@
 import { useAppStore } from '../data/dataStore'
 
-function FriendsTab() {
+function TabFriends() {
   const friends = useAppStore((s) => s.friends)
 
   return (
@@ -11,4 +11,4 @@ function FriendsTab() {
   )
 }
 
-export default FriendsTab
+export default TabFriends

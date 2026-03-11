@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { navigate } from './router'
 import { makeSession, useAppStore } from '../data/dataStore'
 import { scanIncomingEmails, saveStateToEmail } from '../gmail/gmailUtils'
-import FriendsTab from './FriendsTab'
-import ChatsTab from './ChatsTab'
-import TimelinesTab from './TimelinesTab'
-import OperationsTab from './OperationsTab'
+import TabFriends from './TabFriends'
+import TabChats from './TabChats'
+import TabTimelines from './TabTimelines'
+import TabOperations from './TabOperations'
 import './SocialPage.css'
 
 const TABS = [
@@ -53,15 +53,15 @@ function SocialPage() {
         <div className="social-action-buttons">
           <button className="social-action-btn" onClick={handleSignOut}>
             <span>Sign out</span>
-            <span className="social-action-ts">last: {formatTs(session.lastLoginAt)}</span>
+            <span className="social-action-ts">✓ {formatTs(session.lastLoginAt)}</span>
           </button>
           <button className="social-action-btn" title="Scan incoming emails" onClick={() => { setActiveTab('operations'); scanIncomingEmails() }}>
             <span>Scan</span>
-            <span className="social-action-ts">last: {formatTs(session.lastScanAt)}</span>
+            <span className="social-action-ts">✓ {formatTs(session.lastScanAt)}</span>
           </button>
           <button className="social-action-btn social-action-btn--save" title="Save state to email" onClick={() => { setActiveTab('operations'); saveStateToEmail() }}>
             <span>Save</span>
-            <span className="social-action-ts">last: {formatTs(session.lastSaveAt)}</span>
+            <span className="social-action-ts">✓ {formatTs(session.lastSaveAt)}</span>
             <span className="dirty-dot" style={{ visibility: session.isDataDirty ? 'visible' : 'hidden' }} />
           </button>
         </div>
@@ -80,10 +80,10 @@ function SocialPage() {
       </nav>
 
       <div className="social-content">
-        <div style={{ display: activeTab === 'friends'    ? 'contents' : 'none' }}><FriendsTab /></div>
-        <div style={{ display: activeTab === 'chats'      ? 'contents' : 'none' }}><ChatsTab /></div>
-        <div style={{ display: activeTab === 'timelines'  ? 'contents' : 'none' }}><TimelinesTab /></div>
-        <div style={{ display: activeTab === 'operations' ? 'contents' : 'none' }}><OperationsTab /></div>
+        <div style={{ display: activeTab === 'friends'    ? 'contents' : 'none' }}><TabFriends /></div>
+        <div style={{ display: activeTab === 'chats'      ? 'contents' : 'none' }}><TabChats /></div>
+        <div style={{ display: activeTab === 'timelines'  ? 'contents' : 'none' }}><TabTimelines /></div>
+        <div style={{ display: activeTab === 'operations' ? 'contents' : 'none' }}><TabOperations /></div>
       </div>
     </div>
   )
