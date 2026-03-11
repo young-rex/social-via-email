@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { navigate } from './router'
-import { makeSession, useAppStore } from './data/dataStore'
-import { scanIncomingEmails, saveStateToEmail } from './gmail/gmailUtils'
-import FriendsTab from './social/FriendsTab'
-import ChatsTab from './social/ChatsTab'
-import TimelinesTab from './social/TimelinesTab'
-import OperationsTab from './social/OperationsTab'
+import { makeSession, useAppStore } from '../data/dataStore'
+import { scanIncomingEmails, saveStateToEmail } from '../gmail/gmailUtils'
+import FriendsTab from './FriendsTab'
+import ChatsTab from './ChatsTab'
+import TimelinesTab from './TimelinesTab'
+import OperationsTab from './OperationsTab'
 import './SocialPage.css'
 
 const TABS = [
@@ -21,7 +21,7 @@ function formatTs(ts) {
 }
 
 function SocialPage() {
-  const { session, setSession, addOpLog } = useAppStore()
+  const { session, setSession } = useAppStore()
   const [activeTab, setActiveTab] = useState('operations')
 
   function handleSignOut() {

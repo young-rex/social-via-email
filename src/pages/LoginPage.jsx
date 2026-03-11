@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import SocialPage from './SocialPage'
 import { navigate } from './router'
-import { makePerson, makeSession, useAppStore } from './data/dataStore'
-import { initTokenClient, fetchUserInfo } from './gmail/gmailUtils'
+import { makePerson, makeSession, useAppStore } from '../data/dataStore'
+import { initTokenClient, fetchUserInfo } from '../gmail/gmailUtils'
 import './LoginPage.css'
 
 function LoginPage() {

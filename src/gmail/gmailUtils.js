@@ -1,4 +1,4 @@
-import { makePacket, useAppStore } from '../data/dataStore'
+import { useAppStore } from '../data/dataStore'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const SCOPES = 'openid email profile https://www.googleapis.com/auth/gmail.modify'
@@ -36,7 +36,7 @@ const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
 const REQUIRED_LABELS = ['social-via-email-inbox', 'social-via-email-data']
 let dataLabelId = null
 
-async function createLabel(name) {
+async function createGmailLabel(name) {
   const { session } = useAppStore.getState()
   const accessToken = session?.oauthToken
   const res = await fetch(`${GMAIL_API}/labels`, {
@@ -64,7 +64,7 @@ export async function initializeLabels() {
 
   for (const labelName of REQUIRED_LABELS) {
     const existing = labels.find((l) => l.name === labelName)
-    const label = existing ?? (await createLabel(labelName, accessToken))
+    const label = existing ?? (await createGmailLabel(labelName, accessToken))
     if (labelName === 'social-via-email-data') dataLabelId = label.id
     if (existing) {
       addOpLog(`initializeLabels: label "${labelName}" found`)
@@ -189,6 +189,41 @@ export async function saveStateToEmail() {
 export async function scanIncomingEmails() {
   const { session, setSession, addOpLog } = useAppStore.getState()
   addOpLog('scanIncomingEmails: started')
+
+  const accessToken = session?.oauthToken
+  const query = encodeURIComponent('subject:"Lemitar::Social-via-Email" (label:inbox OR label:social-via-email-inbox)')
+  const searchRes = await fetch(`${GMAIL_API}/messages?q=${query}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!searchRes.ok) throw new Error('scanIncomingEmails: Failed to search messages')
+  const { messages } = await searchRes.json()
+
+  if (!messages || messages.length === 0) {
+    addOpLog('scanIncomingEmails: no incoming emails found')
+  } else {
+    addOpLog(`scanIncomingEmails: found ${messages.length} email(s)`)
+    for (const { id } of messages) {
+      // 1/3: Read email
+      const msgRes = await fetch(`${GMAIL_API}/messages/${id}?format=full`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (!msgRes.ok) throw new Error(`scanIncomingEmails: Failed to fetch message ${id}`)
+      const msg = await msgRes.json()
+      const jsonBody = extractBody(msg.payload)
+      
+      // 2/3: Process email
+      // TODO const packet = JSON.parse(jsonBody)
+      addOpLog(`scanIncomingEmails: processed email - ${jsonBody}`)
+
+      // 3/3: Trash email
+      await fetch(`${GMAIL_API}/messages/${id}/trash`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      addOpLog('scanIncomingEmails: trashed email')
+    }
+  }
+
   setSession({ ...session, lastScanAt: Date.now() })
   addOpLog('scanIncomingEmails: done')
 }
