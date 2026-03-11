@@ -57,14 +57,14 @@ export const useAppStore = create((set) => ({
   clearOpLogs: () => set({ opLogs: [] }),
 
   friends:     [],
-  setFriends:  (friends) => set({ friends }),
+  setFriends:  (friends) => set((s) => ({ friends, session: { ...s.session, isDataDirty: true } })),
 
   chats:       [],
-  setChats:    (chats) => set({ chats }),
+  setChats:    (chats) => set((s) => ({ chats, session: { ...s.session, isDataDirty: true } })),
 
   timelines:   [],
-  setTimelines:(timelines) => set({ timelines }),
+  setTimelines:(timelines) => set((s) => ({ timelines, session: { ...s.session, isDataDirty: true } })),
 
   fullPostMap:    new Map(),
-  setFullPostMap: (fullPostMap) => set({ fullPostMap }),
+  setFullPostMap: (fullPostMap) => set((s) => ({ fullPostMap, session: { ...s.session, isDataDirty: true } })),
 }))

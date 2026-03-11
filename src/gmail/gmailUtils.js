@@ -1,3 +1,5 @@
+import { useAppStore } from '../data/dataStore'
+
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const SCOPES = 'openid email profile https://www.googleapis.com/auth/gmail.modify'
 
@@ -28,22 +30,161 @@ export async function fetchUserInfo(accessToken) {
   }
 }
 
+const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
+const REQUIRED_LABELS = ['social-via-email-inbox', 'social-via-email-data']
+let dataLabelId = null
+
+async function createLabel(name, accessToken) {
+  const res = await fetch(`${GMAIL_API}/labels`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name }),
+  })
+  if (!res.ok) throw new Error(`Failed to create label: ${name}`)
+  return res.json()
+}
+
 export async function initializeLabels(addOpLog) {
   addOpLog('initializeLabels: started')
+  const { session } = useAppStore.getState()
+  const accessToken = session?.oauthToken
+
+  const listRes = await fetch(`${GMAIL_API}/labels`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!listRes.ok) throw new Error('Failed to list Gmail labels')
+  const { labels } = await listRes.json()
+
+  for (const labelName of REQUIRED_LABELS) {
+    const existing = labels.find((l) => l.name === labelName)
+    const label = existing ?? (await createLabel(labelName, accessToken))
+    if (labelName === 'social-via-email-data') dataLabelId = label.id
+    if (existing) {
+      addOpLog(`initializeLabels: label "${labelName}" found`)
+    } else {
+      addOpLog(`initializeLabels: label "${labelName}" created`)
+    }
+  }
+
   addOpLog('initializeLabels: done')
+
+  await loadEmailToState(addOpLog)
+  await scanIncomingEmails(addOpLog)
+}
+
+function extractBody(payload) {
+  if (payload.body?.data) {
+    return atob(payload.body.data.replace(/-/g, '+').replace(/_/g, '/'))
+  }
+  if (payload.parts) {
+    for (const part of payload.parts) {
+      if (part.mimeType === 'text/plain' && part.body?.data) {
+        return atob(part.body.data.replace(/-/g, '+').replace(/_/g, '/'))
+      }
+    }
+  }
+  return null
 }
 
 export async function loadEmailToState(addOpLog) {
   addOpLog('loadEmailToState: started')
-  addOpLog('loadEmailToState: done')
+  const { session, setSession } = useAppStore.getState()
+  const accessToken = session?.oauthToken
+
+  const query = encodeURIComponent('label:social-via-email-data subject:memory-dump')
+  const searchRes = await fetch(`${GMAIL_API}/messages?q=${query}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!searchRes.ok) throw new Error('Failed to search Gmail messages')
+  const { messages } = await searchRes.json()
+
+  if (!messages || messages.length === 0) {
+    addOpLog('loadEmailToState: email "memory-dump" not found')
+    addOpLog('loadEmailToState: done')
+
+    await saveStateToEmail(addOpLog)
+
+  } else {
+
+    addOpLog('loadEmailToState: email "memory-dump" found')
+
+    const msgRes = await fetch(`${GMAIL_API}/messages/${messages[0].id}?format=full`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    if (!msgRes.ok) throw new Error('Failed to fetch message')
+    const msg = await msgRes.json()
+
+    const body = extractBody(msg.payload)
+    const { setFriends, setChats, setTimelines, setFullPostMap } = useAppStore.getState()
+    const data = JSON.parse(body)
+    setFriends(data.friends)
+    setChats(data.chats)
+    setTimelines(data.timelines)
+    setFullPostMap(new Map(data.fullPostMap))
+
+    setSession({ ...session, isDataDirty: false })
+
+    addOpLog('loadEmailToState: state restored')
+    addOpLog('loadEmailToState: done')
+  }
+}
+
+function toBase64Url(str) {
+  const bytes = new TextEncoder().encode(str)
+  let binary = ''
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
 export async function saveStateToEmail(addOpLog) {
   addOpLog('saveStateToEmail: started')
+  const { session, setSession, friends, chats, timelines, fullPostMap } = useAppStore.getState()
+  const accessToken = session?.oauthToken
+
+  const body = JSON.stringify({ friends, chats, timelines, fullPostMap: [...fullPostMap.entries()] })
+
+  if (!dataLabelId) throw new Error('Label "social-via-email-data" not initialized')
+
+  // Find existing memory-dump emails before inserting
+  const query = encodeURIComponent('label:social-via-email-data subject:memory-dump')
+  const searchRes = await fetch(`${GMAIL_API}/messages?q=${query}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  })
+  if (!searchRes.ok) throw new Error('Failed to search for old memory-dump emails')
+  const { messages: oldMessages } = await searchRes.json()
+
+  // Build and insert new RFC 2822 message
+  const userEmail = session.currentUser?.email ?? ''
+  const mime = [`From: ${userEmail}`, `To: ${userEmail}`, 'Subject: memory-dump', 'Content-Type: text/plain; charset=UTF-8', '', body].join('\r\n')
+  const insertRes = await fetch(`${GMAIL_API}/messages`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw: toBase64Url(mime), labelIds: [dataLabelId] }),
+  })
+  if (!insertRes.ok) throw new Error('Failed to insert memory-dump email')
+  addOpLog('saveStateToEmail: email "memory-dump" created')
+
+  // Trash old memory-dump emails
+  if (oldMessages && oldMessages.length > 0) {
+    for (const msg of oldMessages) {
+      await fetch(`${GMAIL_API}/messages/${msg.id}/trash`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+    }
+    addOpLog(`saveStateToEmail: deleted ${oldMessages.length} old "memory-dump" email(s)`)
+  }
+
+  setSession({ ...session, lastSaveAt: Date.now() })
   addOpLog('saveStateToEmail: done')
 }
 
 export async function scanIncomingEmails(addOpLog) {
   addOpLog('scanIncomingEmails: started')
+  const { session, setSession } = useAppStore.getState()
+  setSession({ ...session, lastScanAt: Date.now() })
   addOpLog('scanIncomingEmails: done')
 }

@@ -17,7 +17,7 @@ function OperationsTab() {
 
   return (
     <div className="tab-content">
-      <button onClick={clearOpLogs} style={{ fontSize: '0.75em', padding: '0.25em 1em', border: '1px solid red' }}>Clear</button>
+      <button onClick={clearOpLogs} style={{ fontSize: '0.75em', padding: '0.25em 1em', border: '1px solid red', color: 'red' }}>Clear</button>
       <pre className="operations-log">
         {opLogs.length === 0
           ? '(no logs yet)'
