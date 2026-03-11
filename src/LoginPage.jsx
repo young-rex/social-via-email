@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import SocialPage from './SocialPage'
 import { navigate } from './router'
-import { makePerson, makeSession } from './types'
+import { makePerson, makeSession, useAppStore } from './dataStore'
 import { initTokenClient, fetchUserInfo } from './authGmail'
 import './LoginPage.css'
 
 function LoginPage() {
   const [pathname, setPathname] = useState(window.location.pathname)
-  const [session, setSession] = useState(makeSession())
+  const { session, setSession } = useAppStore()
 
   useEffect(() => {
     const onPopState = () => setPathname(window.location.pathname)
@@ -28,7 +28,7 @@ function LoginPage() {
   }
 
   if (pathname === '/social') {
-    return <SocialPage session={session} setSession={setSession} />
+    return <SocialPage />
   }
 
   function handleSignIn(e) {

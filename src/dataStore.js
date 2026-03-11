@@ -1,3 +1,5 @@
+import { create } from 'zustand'
+
 export function makePerson(email, name, imageUrl = null) {
   return {
     email: email.toLowerCase(),
@@ -17,3 +19,8 @@ export function makeSession(overrides = {}) {
     ...overrides,
   }
 }
+
+export const useAppStore = create((set) => ({
+  session:    makeSession(),
+  setSession: (session) => set({ session }),
+}))

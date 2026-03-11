@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { navigate } from './router'
-import { makeSession } from './types'
+import { makeSession, useAppStore } from './dataStore'
 import './SocialPage.css'
 
 const TABS = [
@@ -22,7 +22,8 @@ function formatTs(ts) {
   return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-function SocialPage({ session, setSession }) {
+function SocialPage() {
+  const { session, setSession } = useAppStore()
   const [activeTab, setActiveTab] = useState('operations')
 
   function handleSignOut() {
