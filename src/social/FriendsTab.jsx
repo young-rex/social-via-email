@@ -1,4 +1,4 @@
-import { useAppStore } from './dataStore'
+import { useAppStore } from '../data/dataStore'
 
 function FriendsTab() {
   const friends = useAppStore((s) => s.friends)

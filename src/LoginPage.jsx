@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import SocialPage from './SocialPage'
 import { navigate } from './router'
-import { makePerson, makeSession, useAppStore } from './dataStore'
-import { initTokenClient, fetchUserInfo } from './authGmail'
+import { makePerson, makeSession, useAppStore } from './data/dataStore'
+import { initTokenClient, fetchUserInfo } from './gmail/gmailUtils'
 import './LoginPage.css'
 
 function LoginPage() {
@@ -18,16 +18,12 @@ function LoginPage() {
   const isLoggedIn = session.currentUser !== null
 
   // Route guards
-  if (isLoggedIn && pathname === '/') {
-    navigate('/social')
-    return null
-  }
-  if (!isLoggedIn && pathname === '/social') {
-    navigate('/')
-    return null
-  }
+  useEffect(() => {
+    if (isLoggedIn && pathname === '/') navigate('/social')
+    if (!isLoggedIn && pathname === '/social') navigate('/')
+  }, [isLoggedIn, pathname])
 
-  if (pathname === '/social') {
+  if (pathname === '/social' && isLoggedIn) {
     return <SocialPage />
   }
 

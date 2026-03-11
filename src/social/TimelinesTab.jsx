@@ -1,4 +1,4 @@
-import { useAppStore } from './dataStore'
+import { useAppStore } from '../data/dataStore'
 
 function TimelinesTab() {
   const timelines = useAppStore((s) => s.timelines)

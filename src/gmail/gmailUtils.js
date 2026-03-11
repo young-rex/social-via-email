@@ -27,3 +27,23 @@ export async function fetchUserInfo(accessToken) {
     imageUrl: data.picture || null,
   }
 }
+
+export async function initializeLabels(addOpLog) {
+  addOpLog('initializeLabels: started')
+  addOpLog('initializeLabels: done')
+}
+
+export async function loadEmailToState(addOpLog) {
+  addOpLog('loadEmailToState: started')
+  addOpLog('loadEmailToState: done')
+}
+
+export async function saveStateToEmail(addOpLog) {
+  addOpLog('saveStateToEmail: started')
+  addOpLog('saveStateToEmail: done')
+}
+
+export async function scanIncomingEmails(addOpLog) {
+  addOpLog('scanIncomingEmails: started')
+  addOpLog('scanIncomingEmails: done')
+}

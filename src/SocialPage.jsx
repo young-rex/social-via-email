@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { navigate } from './router'
-import { makeSession, useAppStore } from './dataStore'
-import FriendsTab from './FriendsTab'
-import ChatsTab from './ChatsTab'
-import TimelinesTab from './TimelinesTab'
-import OperationsTab from './OperationsTab'
+import { makeSession, useAppStore } from './data/dataStore'
+import { scanIncomingEmails, saveStateToEmail } from './gmail/gmailUtils'
+import FriendsTab from './social/FriendsTab'
+import ChatsTab from './social/ChatsTab'
+import TimelinesTab from './social/TimelinesTab'
+import OperationsTab from './social/OperationsTab'
 import './SocialPage.css'
 
 const TABS = [
@@ -20,7 +21,7 @@ function formatTs(ts) {
 }
 
 function SocialPage() {
-  const { session, setSession } = useAppStore()
+  const { session, setSession, addOpLog } = useAppStore()
   const [activeTab, setActiveTab] = useState('operations')
 
   function handleSignOut() {
@@ -54,11 +55,11 @@ function SocialPage() {
             <span>Sign out</span>
             <span className="social-action-ts">last: {formatTs(session.lastLoginAt)}</span>
           </button>
-          <button className="social-action-btn" title="Scan incoming emails">
+          <button className="social-action-btn" title="Scan incoming emails" onClick={() => { setActiveTab('operations'); scanIncomingEmails(addOpLog) }}>
             <span>Scan</span>
             <span className="social-action-ts">last: {formatTs(session.lastScanAt)}</span>
           </button>
-          <button className="social-action-btn social-action-btn--save" title="Save state to email">
+          <button className="social-action-btn social-action-btn--save" title="Save state to email" onClick={() => { setActiveTab('operations'); saveStateToEmail(addOpLog) }}>
             <span>Save</span>
             <span className="social-action-ts">last: {formatTs(session.lastSaveAt)}</span>
             <span className="dirty-dot" style={{ visibility: session.isDataDirty ? 'visible' : 'hidden' }} />
