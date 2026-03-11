@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import SocialPage from './SocialPage'
 import { navigate } from './router'
-import { makePerson, makeSession, useAppStore } from '../data/dataStore'
-import { initTokenClient, fetchUserInfo } from '../gmail/gmailUtils'
+import { useAppStore } from '../data/dataStore'
+import { handleSignIn } from '../gmail/gmailLogin'
 import './LoginPage.css'
 
 function LoginPage() {
   const [pathname, setPathname] = useState(window.location.pathname)
-  const { session, setSession } = useAppStore()
+  const { session } = useAppStore()
 
   useEffect(() => {
     const onPopState = () => setPathname(window.location.pathname)
@@ -25,34 +25,6 @@ function LoginPage() {
 
   if (pathname === '/social' && isLoggedIn) {
     return <SocialPage />
-  }
-
-  function handleSignIn(e) {
-    e.preventDefault()
-    function onSuccess(tokenResponse) {
-      // set oauthToken first so fetchUserInfo can read it from the store
-      setSession(makeSession({ oauthToken: tokenResponse.access_token, lastLoginAt: Date.now() }))
-      fetchUserInfo()
-        .then(({ email, name, imageUrl }) => {
-          const person = makePerson(email, name, imageUrl)
-          setSession(makeSession({
-            currentUser: person,
-            oauthToken: tokenResponse.access_token,
-            lastLoginAt: Date.now(),
-          }))
-          navigate('/social')
-        })
-        .catch(() => {
-          setSession(makeSession())
-          navigate('/')
-        })
-    }
-    function onError() {
-      setSession(makeSession())
-      navigate('/')
-    }
-    const tokenClient = initTokenClient(onSuccess, onError)
-    tokenClient.requestAccessToken()
   }
 
   return (

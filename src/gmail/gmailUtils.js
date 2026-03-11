@@ -1,40 +1,8 @@
 import { useAppStore } from '../data/dataStore'
 
-const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
-const SCOPES = 'openid email profile https://www.googleapis.com/auth/gmail.modify'
-
-export function initTokenClient(onSuccess, onError) {
-  return window.google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: (tokenResponse) => {
-      if (tokenResponse.error) {
-        onError(tokenResponse)
-      } else {
-        onSuccess(tokenResponse)
-      }
-    },
-  })
-}
-
-export async function fetchUserInfo() {
-  const { session } = useAppStore.getState()
-  const accessToken = session?.oauthToken
-  const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  })
-  if (!res.ok) throw new Error('Failed to fetch user info')
-  const data = await res.json()
-  return {
-    email: data.email,
-    name: data.name || data.email.split('@')[0],
-    imageUrl: data.picture || null,
-  }
-}
 
 const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
 const REQUIRED_LABELS = ['social-via-email-inbox', 'social-via-email-data']
-let dataLabelId = null
 
 async function createGmailLabel(name) {
   const { session } = useAppStore.getState()
@@ -52,7 +20,7 @@ async function createGmailLabel(name) {
 }
 
 export async function initializeLabels() {
-  const { addOpLog, session } = useAppStore.getState()
+  const { addOpLog, session, setSession } = useAppStore.getState()
   addOpLog('initializeLabels: started')
   const accessToken = session?.oauthToken
 
@@ -65,7 +33,7 @@ export async function initializeLabels() {
   for (const labelName of REQUIRED_LABELS) {
     const existing = labels.find((l) => l.name === labelName)
     const label = existing ?? (await createGmailLabel(labelName, accessToken))
-    if (labelName === 'social-via-email-data') dataLabelId = label.id
+    if (labelName === 'social-via-email-data') setSession({ ...session, gmailDataLabelId: label.id })
     if (existing) {
       addOpLog(`initializeLabels: label "${labelName}" found`)
     } else {
@@ -150,7 +118,8 @@ export async function saveStateToEmail() {
 
   const body = JSON.stringify({ friends, chats, timelines, fullPostMap: [...fullPostMap.entries()] })
 
-  if (!dataLabelId) throw new Error('Label "social-via-email-data" not initialized')
+  const { gmailDataLabelId } = session
+  if (!gmailDataLabelId) throw new Error('Label "social-via-email-data" not initialized')
 
   // Find existing memory-dump emails before inserting
   const query = encodeURIComponent('label:social-via-email-data subject:memory-dump')
@@ -166,7 +135,7 @@ export async function saveStateToEmail() {
   const insertRes = await fetch(`${GMAIL_API}/messages`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ raw: toBase64Url(mime), labelIds: [dataLabelId] }),
+    body: JSON.stringify({ raw: toBase64Url(mime), labelIds: [gmailDataLabelId] }),
   })
   if (!insertRes.ok) throw new Error('Failed to insert memory-dump email')
   addOpLog('saveStateToEmail: email "memory-dump" created')

@@ -40,6 +40,7 @@ export function makeSession(overrides = {}) {
     lastScanAt: 0,
     lastSaveAt: 0,
     isDataDirty: false,
+    gmailDataLabelId: null,
     ...overrides,
   }
 }
