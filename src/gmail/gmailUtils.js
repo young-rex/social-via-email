@@ -1,4 +1,4 @@
-import { useAppStore } from '../data/dataStore'
+import { makePacket, useAppStore } from '../data/dataStore'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const SCOPES = 'openid email profile https://www.googleapis.com/auth/gmail.modify'
@@ -191,4 +191,30 @@ export async function scanIncomingEmails() {
   addOpLog('scanIncomingEmails: started')
   setSession({ ...session, lastScanAt: Date.now() })
   addOpLog('scanIncomingEmails: done')
+}
+
+export async function sendEmail(packet) {
+  const { addOpLog } = useAppStore.getState()
+  const { session } = useAppStore.getState()
+
+  addOpLog('sendEmail: started')
+  addOpLog(`sendEmail: sending to ${packet.targetEmail} for ${packet.actionCode}`)
+
+  const mime = [
+    `From: ${packet.sourceEmail}`,
+    `To: ${packet.targetEmail}`,
+    'Subject: Lemitar::Social-via-Email',
+    'Content-Type: text/plain; charset=UTF-8',
+    '',
+    JSON.stringify(packet),
+  ].join('\r\n')
+
+  const sendRes = await fetch(`${GMAIL_API}/messages/send`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.oauthToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raw: toBase64Url(mime) }),
+  })
+  if (!sendRes.ok) addOpLog('sendEmail: Failed to send email')
+
+  addOpLog('sendEmail: done')
 }
