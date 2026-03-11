@@ -1,21 +1,18 @@
 import { useState } from 'react'
 import { navigate } from './router'
 import { makeSession, useAppStore } from './dataStore'
+import FriendsTab from './FriendsTab'
+import ChatsTab from './ChatsTab'
+import TimelinesTab from './TimelinesTab'
+import OperationsTab from './OperationsTab'
 import './SocialPage.css'
 
 const TABS = [
-  { id: 'friends', label: 'Friends' },
-  { id: 'chats', label: 'Chats' },
-  { id: 'timelines', label: 'Timelines' },
+  { id: 'friends',    label: 'Friends' },
+  { id: 'chats',      label: 'Chats' },
+  { id: 'timelines',  label: 'Timelines' },
   { id: 'operations', label: 'Operations' },
 ]
-
-const CONTENT = {
-  friends: 'You selected Friends.',
-  chats: 'You selected Chats.',
-  timelines: 'You selected Timelines.',
-  operations: 'You selected Operations.',
-}
 
 function formatTs(ts) {
   if (!ts) return '—'
@@ -82,7 +79,10 @@ function SocialPage() {
       </nav>
 
       <div className="social-content">
-        <p>{CONTENT[activeTab]}</p>
+        <div style={{ display: activeTab === 'friends'    ? 'contents' : 'none' }}><FriendsTab /></div>
+        <div style={{ display: activeTab === 'chats'      ? 'contents' : 'none' }}><ChatsTab /></div>
+        <div style={{ display: activeTab === 'timelines'  ? 'contents' : 'none' }}><TimelinesTab /></div>
+        <div style={{ display: activeTab === 'operations' ? 'contents' : 'none' }}><OperationsTab /></div>
       </div>
     </div>
   )
