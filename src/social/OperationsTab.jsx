@@ -7,13 +7,12 @@ function formatTime(ms) {
 }
 
 function OperationsTab() {
-  const addOpLog    = useAppStore((s) => s.addOpLog)
   const clearOpLogs = useAppStore((s) => s.clearOpLogs)
   const opLogs      = useAppStore((s) => s.opLogs)
 
   useEffect(() => {
-    initializeLabels(addOpLog)
-  }, [addOpLog])
+    initializeLabels()
+  }, [])
 
   return (
     <div className="tab-content">

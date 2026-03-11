@@ -55,11 +55,11 @@ function SocialPage() {
             <span>Sign out</span>
             <span className="social-action-ts">last: {formatTs(session.lastLoginAt)}</span>
           </button>
-          <button className="social-action-btn" title="Scan incoming emails" onClick={() => { setActiveTab('operations'); scanIncomingEmails(addOpLog) }}>
+          <button className="social-action-btn" title="Scan incoming emails" onClick={() => { setActiveTab('operations'); scanIncomingEmails() }}>
             <span>Scan</span>
             <span className="social-action-ts">last: {formatTs(session.lastScanAt)}</span>
           </button>
-          <button className="social-action-btn social-action-btn--save" title="Save state to email" onClick={() => { setActiveTab('operations'); saveStateToEmail(addOpLog) }}>
+          <button className="social-action-btn social-action-btn--save" title="Save state to email" onClick={() => { setActiveTab('operations'); saveStateToEmail() }}>
             <span>Save</span>
             <span className="social-action-ts">last: {formatTs(session.lastSaveAt)}</span>
             <span className="dirty-dot" style={{ visibility: session.isDataDirty ? 'visible' : 'hidden' }} />

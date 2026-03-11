@@ -17,7 +17,9 @@ export function initTokenClient(onSuccess, onError) {
   })
 }
 
-export async function fetchUserInfo(accessToken) {
+export async function fetchUserInfo() {
+  const { session } = useAppStore.getState()
+  const accessToken = session?.oauthToken
   const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
     headers: { Authorization: `Bearer ${accessToken}` },
   })
@@ -34,7 +36,9 @@ const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
 const REQUIRED_LABELS = ['social-via-email-inbox', 'social-via-email-data']
 let dataLabelId = null
 
-async function createLabel(name, accessToken) {
+async function createLabel(name) {
+  const { session } = useAppStore.getState()
+  const accessToken = session?.oauthToken
   const res = await fetch(`${GMAIL_API}/labels`, {
     method: 'POST',
     headers: {
@@ -47,9 +51,9 @@ async function createLabel(name, accessToken) {
   return res.json()
 }
 
-export async function initializeLabels(addOpLog) {
+export async function initializeLabels() {
+  const { addOpLog, session } = useAppStore.getState()
   addOpLog('initializeLabels: started')
-  const { session } = useAppStore.getState()
   const accessToken = session?.oauthToken
 
   const listRes = await fetch(`${GMAIL_API}/labels`, {
@@ -71,8 +75,8 @@ export async function initializeLabels(addOpLog) {
 
   addOpLog('initializeLabels: done')
 
-  await loadEmailToState(addOpLog)
-  await scanIncomingEmails(addOpLog)
+  await loadEmailToState()
+  await scanIncomingEmails()
 }
 
 function extractBody(payload) {
@@ -89,9 +93,9 @@ function extractBody(payload) {
   return null
 }
 
-export async function loadEmailToState(addOpLog) {
+export async function loadEmailToState() {
+  const { session, setSession, addOpLog } = useAppStore.getState()
   addOpLog('loadEmailToState: started')
-  const { session, setSession } = useAppStore.getState()
   const accessToken = session?.oauthToken
 
   const query = encodeURIComponent('label:social-via-email-data subject:memory-dump')
@@ -105,7 +109,7 @@ export async function loadEmailToState(addOpLog) {
     addOpLog('loadEmailToState: email "memory-dump" not found')
     addOpLog('loadEmailToState: done')
 
-    await saveStateToEmail(addOpLog)
+    await saveStateToEmail()
 
   } else {
 
@@ -139,9 +143,9 @@ function toBase64Url(str) {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
 
-export async function saveStateToEmail(addOpLog) {
+export async function saveStateToEmail() {
+  const { session, setSession, friends, chats, timelines, fullPostMap, addOpLog } = useAppStore.getState()
   addOpLog('saveStateToEmail: started')
-  const { session, setSession, friends, chats, timelines, fullPostMap } = useAppStore.getState()
   const accessToken = session?.oauthToken
 
   const body = JSON.stringify({ friends, chats, timelines, fullPostMap: [...fullPostMap.entries()] })
@@ -182,9 +186,9 @@ export async function saveStateToEmail(addOpLog) {
   addOpLog('saveStateToEmail: done')
 }
 
-export async function scanIncomingEmails(addOpLog) {
+export async function scanIncomingEmails() {
+  const { session, setSession, addOpLog } = useAppStore.getState()
   addOpLog('scanIncomingEmails: started')
-  const { session, setSession } = useAppStore.getState()
   setSession({ ...session, lastScanAt: Date.now() })
   addOpLog('scanIncomingEmails: done')
 }

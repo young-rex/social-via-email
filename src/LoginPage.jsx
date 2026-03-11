@@ -30,7 +30,9 @@ function LoginPage() {
   function handleSignIn(e) {
     e.preventDefault()
     function onSuccess(tokenResponse) {
-      fetchUserInfo(tokenResponse.access_token)
+      // set oauthToken first so fetchUserInfo can read it from the store
+      setSession(makeSession({ oauthToken: tokenResponse.access_token, lastLoginAt: Date.now() }))
+      fetchUserInfo()
         .then(({ email, name, imageUrl }) => {
           const person = makePerson(email, name, imageUrl)
           setSession(makeSession({
