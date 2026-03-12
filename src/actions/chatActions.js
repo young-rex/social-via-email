@@ -65,5 +65,26 @@ export function uiAddPost(message, headpost) {
 }
 
 export function processPacket(packet) {
-  // TODO: handle chat action
+  const { addLog } = useAppStore.getState()
+  addLog(`chatActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
+
+  const { chats, setChats, fullPostMap, setFullPostMap } = useAppStore.getState()
+  const post = packet.post
+
+  if (packet.actionCode === actionCodeHead) {
+
+    fullPostMap.set(post.uuid, post)
+    setFullPostMap(new Map(fullPostMap))
+    setChats([...chats, post.uuid])
+
+  } else if (packet.actionCode === actionCodePost) {
+
+    const headpost = fullPostMap.get(post.headPostUuid)
+    if (!headpost) return
+
+    headpost.childPostUuids.push(post.uuid)
+    fullPostMap.set(post.uuid, post)
+    setFullPostMap(new Map(fullPostMap))
+
+  }
 }

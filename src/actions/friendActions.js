@@ -28,8 +28,8 @@ export function uiAddFriend(email) {
 }
 
 export function processPacket(packet) {
-  const { addOpLog } = useAppStore.getState()
-  addOpLog(`friendActions: processing packet for ${packet.sourceEmail}/${packet.featureCode}/${packet.actionCode}`)
+  const { addLog } = useAppStore.getState()
+  addLog(`friendActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
 
   if (packet.sourceEmail !== packet.friend.email) return
 

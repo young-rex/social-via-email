@@ -54,9 +54,9 @@ export const useAppStore = create((set) => ({
   session:     makeSession(),
   setSession:  (session) => set({ session }),
 
-  opLogs:      [],
-  addOpLog:    (message) => set((s) => ({ opLogs: [...s.opLogs, makeLogEntry(message)] })),
-  clearOpLogs: () => set({ opLogs: [] }),
+  logs:        [],
+  addLog:      (message) => set((s) => ({ logs: [...s.logs, makeLogEntry(message)] })),
+  clearLogs: () => set({ logs: [] }),
 
   friends:     [],
   setFriends:  (friends) => set((s) => ({ friends, session: { ...s.session, isDataDirty: true } })),

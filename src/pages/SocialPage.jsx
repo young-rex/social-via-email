@@ -5,14 +5,14 @@ import { scanIncomingEmails, saveStateToEmail } from '../gmail/gmailUtils'
 import TabFriends from './TabFriends'
 import TabChats from './TabChats'
 import TabTimelines from './TabTimelines'
-import TabOperations from './TabOperations'
+import TabLogs from './TabLogs'
 import './SocialPage.css'
 
 const TABS = [
   { id: 'friends',    label: 'Friends' },
   { id: 'chats',      label: 'Chats' },
   { id: 'timelines',  label: 'Timelines' },
-  { id: 'operations', label: 'Operations' },
+  { id: 'logs', label: 'Logs' },
 ]
 
 function formatTs(ts) {
@@ -22,7 +22,7 @@ function formatTs(ts) {
 
 function SocialPage() {
   const { session, setSession } = useAppStore()
-  const [activeTab, setActiveTab] = useState('operations')
+  const [activeTab, setActiveTab] = useState('logs')
 
   function handleSignOut() {
     setSession(makeSession())
@@ -55,11 +55,11 @@ function SocialPage() {
             <span>Sign out</span>
             <span className="social-action-ts">✓ {formatTs(session.lastLoginAt)}</span>
           </button>
-          <button className="social-action-btn" title="Scan incoming emails" onClick={() => { setActiveTab('operations'); scanIncomingEmails() }}>
+          <button className="social-action-btn" title="Scan incoming emails" onClick={() => scanIncomingEmails()}>
             <span>Scan</span>
             <span className="social-action-ts">✓ {formatTs(session.lastScanAt)}</span>
           </button>
-          <button className="social-action-btn social-action-btn--save" title="Save state to email" onClick={() => { setActiveTab('operations'); saveStateToEmail() }}>
+          <button className="social-action-btn social-action-btn--save" title="Save state to email" onClick={() => saveStateToEmail()}>
             <span>Save</span>
             <span className="social-action-ts">✓ {formatTs(session.lastSaveAt)}</span>
             <span className="dirty-dot" style={{ visibility: session.isDataDirty ? 'visible' : 'hidden' }} />
@@ -83,7 +83,7 @@ function SocialPage() {
         <div style={{ display: activeTab === 'friends'    ? 'contents' : 'none' }}><TabFriends /></div>
         <div style={{ display: activeTab === 'chats'      ? 'contents' : 'none' }}><TabChats /></div>
         <div style={{ display: activeTab === 'timelines'  ? 'contents' : 'none' }}><TabTimelines /></div>
-        <div style={{ display: activeTab === 'operations' ? 'contents' : 'none' }}><TabOperations /></div>
+        <div style={{ display: activeTab === 'logs' ? 'contents' : 'none' }}><TabLogs /></div>
       </div>
     </div>
   )

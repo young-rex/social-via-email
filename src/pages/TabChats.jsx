@@ -102,15 +102,15 @@ function AddChatDialog({ friends, onClose }) {
   )
 }
 
-function ChatRow({ post, resolvePerson, fullPostMap, currentUser }) {
+function ChatRow({ post: headpost, resolvePerson, fullPostMap, currentUser }) {
   const [expanded, setExpanded] = useState(false)
   const [reply, setReply] = useState('')
 
-  const author = resolvePerson(post.author)
-  const subscribers = (post.subscribers || [])
-    .filter((email) => email !== post.author)
+  const author = resolvePerson(headpost.author)
+  const subscribers = (headpost.subscribers || [])
+    .filter((email) => email !== headpost.author)
     .map(resolvePerson)
-  const childPosts = (post.childPostUuids || []).map((id) => fullPostMap.get(id)).filter(Boolean)
+  const childPosts = [headpost, ...(headpost.childPostUuids || []).map((id) => fullPostMap.get(id)).filter(Boolean)]
 
   return (
     <li style={{ marginBottom: '0.75em', borderBottom: '1px solid #eee', paddingBottom: '0.6em' }}>
@@ -164,7 +164,7 @@ function ChatRow({ post, resolvePerson, fullPostMap, currentUser }) {
         <div
           style={{ fontSize: '1.05em', whiteSpace: 'pre-wrap', flex: 1 }}
         >
-          {post.text}
+          {headpost.text}
         </div>
       </div>
 
@@ -199,7 +199,7 @@ function ChatRow({ post, resolvePerson, fullPostMap, currentUser }) {
             <button
               onClick={() => {
                 if (!reply.trim()) return
-                uiAddPost(reply.trim(), post)
+                uiAddPost(reply.trim(), headpost)
                 setReply('')
               }}
               style={{ alignSelf: 'flex-end', padding: '0.2em 0.9em' }}
@@ -249,10 +249,10 @@ function TabChats() {
         <p>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {chats.map((uuid) => {
-            const post = fullPostMap.get(uuid)
-            if (!post) return null
+            const headpost = fullPostMap.get(uuid)
+            if (!headpost) return null
             return (
-              <ChatRow key={uuid} post={post} resolvePerson={resolvePerson} fullPostMap={fullPostMap} currentUser={currentUser} />
+              <ChatRow key={uuid} post={headpost} resolvePerson={resolvePerson} fullPostMap={fullPostMap} currentUser={currentUser} />
             )
           })}
         </ul>

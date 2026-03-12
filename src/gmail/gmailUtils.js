@@ -7,8 +7,8 @@ const inboxLabel = 'social-via-email-inbox'
 const emailSubject = 'Lemitar::Social-via-Email'
 
 export async function initializeLabels() {
-  const { addOpLog, session, setSession } = useAppStore.getState()
-  addOpLog('initializeLabels: started')
+  const { addLog, session, setSession } = useAppStore.getState()
+  addLog('initializeLabels: started')
   try {
     const listResp = await gmailFetch('initializeLabels', `${GMAIL_API}/labels`)
     const { labels } = await listResp.json()
@@ -18,7 +18,7 @@ export async function initializeLabels() {
         if (labelName === dataLabel) {
           setSession({ ...session, gmailDataLabelId: existingLabel.id })
         }
-        addOpLog(`initializeLabels: "${labelName}" label found`)
+        addLog(`initializeLabels: "${labelName}" label found`)
       } else {
         const createResp = await gmailFetch('initializeLabels', `${GMAIL_API}/labels`, {
           method: 'POST',
@@ -30,29 +30,29 @@ export async function initializeLabels() {
         if (labelName === dataLabel) {
           setSession({ ...session, gmailDataLabelId: newLabel.id })
         }
-        addOpLog(`initializeLabels: "${labelName}" label created`)
+        addLog(`initializeLabels: "${labelName}" label created`)
       }
     }
   } catch (e) {
-    addOpLog(`initializeLabels: error — ${e.message}`)
+    addLog(`initializeLabels: error — ${e.message}`)
   } finally {
-    addOpLog('initializeLabels: done')
+    addLog('initializeLabels: done')
   }
 }
 
 export async function loadEmailToState() {
-  const { addOpLog } = useAppStore.getState()
-  addOpLog('loadEmailToState: started')
+  const { addLog } = useAppStore.getState()
+  addLog('loadEmailToState: started')
   try {
     const query = encodeURIComponent('label:social-via-email-data subject:memory-dump')
     const searchResp = await gmailFetch('loadEmailToState', `${GMAIL_API}/messages?q=${query}`)
     const { messages } = await searchResp.json()
 
     if (!messages || messages.length === 0) {
-      addOpLog('loadEmailToState: "memory-dump" email not found')
-      addOpLog('loadEmailToState: state reset')
+      addLog('loadEmailToState: "memory-dump" email not found')
+      addLog('loadEmailToState: state reset')
     } else {
-      addOpLog('loadEmailToState: "memory-dump" email found')
+      addLog('loadEmailToState: "memory-dump" email found')
 
       const msgResp = await gmailFetch('loadEmailToState', `${GMAIL_API}/messages/${messages[0].id}?format=full`)
       const msg = await msgResp.json()
@@ -65,18 +65,18 @@ export async function loadEmailToState() {
       setFullPostMap(new Map(jsonObj.fullPostMap))
 
       setSession({ ...session, isDataDirty: false })
-      addOpLog('loadEmailToState: state restored')
+      addLog('loadEmailToState: state restored')
     }
   } catch (e) {
-    addOpLog(`loadEmailToState: error — ${e.message}`)
+    addLog(`loadEmailToState: error — ${e.message}`)
   } finally {
-    addOpLog('loadEmailToState: done')
+    addLog('loadEmailToState: done')
   }
 }
 
 export async function saveStateToEmail() {
-  const { session, setSession, friends, chats, timelines, fullPostMap, addOpLog } = useAppStore.getState()
-  addOpLog('saveStateToEmail: started')
+  const { session, setSession, friends, chats, timelines, fullPostMap, addLog } = useAppStore.getState()
+  addLog('saveStateToEmail: started')
   try {
     const { gmailDataLabelId } = session
     if (!gmailDataLabelId) throw new Error(`label "${dataLabel}" not initialized`)
@@ -96,36 +96,36 @@ export async function saveStateToEmail() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ raw: toBase64Url(mime), labelIds: [gmailDataLabelId] }),
     })
-    addOpLog('saveStateToEmail: created "memory-dump" email')
+    addLog('saveStateToEmail: created "memory-dump" email')
 
     // Trash old memory-dump emails
     if (oldMessages && oldMessages.length > 0) {
       for (const msg of oldMessages) {
         await gmailFetch('saveStateToEmail', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
       }
-      addOpLog(`saveStateToEmail: deleted ${oldMessages.length} old "memory-dump" email(s)`)
+      addLog(`saveStateToEmail: deleted ${oldMessages.length} old "memory-dump" email(s)`)
     }
 
     setSession({ ...session, lastSaveAt: Date.now(), isDataDirty: false })
   } catch (e) {
-    addOpLog(`saveStateToEmail: error — ${e.message}`)
+    addLog(`saveStateToEmail: error — ${e.message}`)
   } finally {
-    addOpLog('saveStateToEmail: done')
+    addLog('saveStateToEmail: done')
   }
 }
 
 export async function scanIncomingEmails() {
-  const { addOpLog } = useAppStore.getState()
-  addOpLog('scanIncomingEmails: started')
+  const { addLog } = useAppStore.getState()
+  addLog('scanIncomingEmails: started')
   try {
     const query = encodeURIComponent(`subject:"${emailSubject}" (label:inbox OR label:${inboxLabel})`)
     const searchResp = await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages?q=${query}`)
     const { messages } = await searchResp.json()
 
     if (!messages || messages.length === 0) {
-      addOpLog('scanIncomingEmails: incoming emails not found')
+      addLog('scanIncomingEmails: incoming emails not found')
     } else {
-      addOpLog(`scanIncomingEmails: found ${messages.length} email(s)`)
+      addLog(`scanIncomingEmails: found ${messages.length} email(s)`)
       for (const { id } of messages) {
         // 1/3: Read email
         const msgResp = await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${id}?format=full`)
@@ -138,7 +138,7 @@ export async function scanIncomingEmails() {
 
         // 3/3: Trash email
         await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${id}/trash`, { method: 'POST' })
-        addOpLog('scanIncomingEmails: trashed email')
+        addLog('scanIncomingEmails: trashed email')
       }
       await saveStateToEmail()
     }
@@ -146,16 +146,16 @@ export async function scanIncomingEmails() {
     const { session, setSession } = useAppStore.getState()
     setSession({ ...session, lastScanAt: Date.now() })
   } catch (e) {
-    addOpLog(`scanIncomingEmails: error — ${e.message}`)
+    addLog(`scanIncomingEmails: error — ${e.message}`)
   } finally {
-    addOpLog('scanIncomingEmails: done')
+    addLog('scanIncomingEmails: done')
   }
 }
 
 export async function sendEmail(packet) {
-  const { addOpLog } = useAppStore.getState()
-  addOpLog('sendEmail: started')
-  addOpLog(`sendEmail: sending to ${packet.targetEmail} for ${packet.featureCode}/${packet.actionCode}`)
+  const { addLog } = useAppStore.getState()
+  addLog('sendEmail: started')
+  addLog(`sendEmail: sending to ${packet.targetEmail} for ${packet.featureCode}/${packet.actionCode}`)
   try {
     const mime = [
       `From: ${packet.sourceEmail}`,
@@ -172,16 +172,16 @@ export async function sendEmail(packet) {
       body: JSON.stringify({ raw: toBase64Url(mime) }),
     })
 
-    if (!sendResp.ok) addOpLog('sendEmail: failed to send email')
+    if (!sendResp.ok) addLog('sendEmail: failed to send email')
   } catch (e) {
-    addOpLog(`sendEmail: error — ${e.message}`)
+    addLog(`sendEmail: error — ${e.message}`)
   } finally {
-    addOpLog('sendEmail: done')
+    addLog('sendEmail: done')
   }
 }
 
 async function gmailFetch(funcName, url, overrides = {}) {
-  const { session, addOpLog } = useAppStore.getState()
+  const { session, addLog } = useAppStore.getState()
   const merged = {
     ...overrides,
     headers: {
@@ -193,9 +193,9 @@ async function gmailFetch(funcName, url, overrides = {}) {
   const resp = await fetch(url, merged)
 
   if (resp.status === 401) {
-    addOpLog(`${funcName}: Gmail access token has expired. ****** Sign out ******`)
+    addLog(`${funcName}: Gmail access token has expired. ****** Sign out ******`)
   } else if (!resp.ok) {
-    addOpLog(`${funcName}: Unexpected HTTP status code ${resp.status}`)
+    addLog(`${funcName}: Unexpected HTTP status code ${resp.status}`)
   }
 
   return resp
