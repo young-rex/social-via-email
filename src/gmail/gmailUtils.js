@@ -1,4 +1,5 @@
 import { useAppStore } from '../data/dataStore'
+import { processPacket } from '../actions/actionCenter'
 
 const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
 const dataLabel = 'social-via-email-data'
@@ -130,10 +131,11 @@ export async function scanIncomingEmails() {
         const msgResp = await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${id}?format=full`)
         const msg = await msgResp.json()
         const bodyJsonStr = extractBody(msg.payload)
+        addOpLog(`scanIncomingEmails: processed email - ${bodyJsonStr}`)
 
         // 2/3: Process email
-        // TODO const packet = JSON.parse(bodyJsonStr)
-        addOpLog(`scanIncomingEmails: processed email - ${bodyJsonStr}`)
+        const packet = JSON.parse(bodyJsonStr)
+        processPacket(packet)
 
         // 3/3: Trash email
         await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${id}/trash`, { method: 'POST' })

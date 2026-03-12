@@ -1,10 +1,11 @@
 import { create } from 'zustand'
 
-export function makePacket(sourceEmail, targetEmail, actionCode, overrides = {}) {
+export function makePacket(sourceEmail, targetEmail, featureCode, actionCode, overrides = {}) {
   return {
     sourceEmail,
     targetEmail,
     appCode: "Social-via-Email",
+    featureCode,
     actionCode,
     ...overrides,
   }
