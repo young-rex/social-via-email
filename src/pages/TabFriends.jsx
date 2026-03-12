@@ -20,7 +20,9 @@ function AddFriendDialog({ onClose }) {
       return
     }
     setError('')
+
     uiAddFriend(email)
+
     setSuccess(true)
   }
 
@@ -34,7 +36,7 @@ function AddFriendDialog({ onClose }) {
       <div style={{ background: '#fff', color: '#111', padding: '1.5em 2em', borderRadius: '8px', minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
         {success ? (
           <>
-            <p style={{ margin: 0 }}>Request email was sent.</p>
+            <p style={{ margin: 0 }}>Request email has been sent.</p>
             <button onClick={onClose} style={{ alignSelf: 'flex-end' }}>Close</button>
           </>
         ) : (
