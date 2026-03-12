@@ -18,19 +18,19 @@ export async function initializeLabels() {
         if (labelName === dataLabel) {
           setSession({ ...session, gmailDataLabelId: existingLabel.id })
         }
-        addOpLog(`initializeLabels: label "${labelName}" found`)
+        addOpLog(`initializeLabels: "${labelName}" label found`)
       } else {
         const createResp = await gmailFetch('initializeLabels', `${GMAIL_API}/labels`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: labelName }),
         })
-        if (!createResp.ok) throw new Error(`failed to create label "${labelName}"`)
+        if (!createResp.ok) throw new Error(`failed to create "${labelName}" label`)
         const newLabel = await createResp.json()
         if (labelName === dataLabel) {
           setSession({ ...session, gmailDataLabelId: newLabel.id })
         }
-        addOpLog(`initializeLabels: label "${labelName}" created`)
+        addOpLog(`initializeLabels: "${labelName}" label created`)
       }
     }
   } catch (e) {
@@ -49,10 +49,10 @@ export async function loadEmailToState() {
     const { messages } = await searchResp.json()
 
     if (!messages || messages.length === 0) {
-      addOpLog('loadEmailToState: email "memory-dump" not found')
+      addOpLog('loadEmailToState: "memory-dump" email not found')
       addOpLog('loadEmailToState: state reset')
     } else {
-      addOpLog('loadEmailToState: email "memory-dump" found')
+      addOpLog('loadEmailToState: "memory-dump" email found')
 
       const msgResp = await gmailFetch('loadEmailToState', `${GMAIL_API}/messages/${messages[0].id}?format=full`)
       const msg = await msgResp.json()
@@ -96,7 +96,7 @@ export async function saveStateToEmail() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ raw: toBase64Url(mime), labelIds: [gmailDataLabelId] }),
     })
-    addOpLog('saveStateToEmail: created email "memory-dump"')
+    addOpLog('saveStateToEmail: created "memory-dump" email')
 
     // Trash old memory-dump emails
     if (oldMessages && oldMessages.length > 0) {
@@ -123,7 +123,7 @@ export async function scanIncomingEmails() {
     const { messages } = await searchResp.json()
 
     if (!messages || messages.length === 0) {
-      addOpLog('scanIncomingEmails: no incoming emails found')
+      addOpLog('scanIncomingEmails: incoming emails not found')
     } else {
       addOpLog(`scanIncomingEmails: found ${messages.length} email(s)`)
       for (const { id } of messages) {
@@ -131,7 +131,6 @@ export async function scanIncomingEmails() {
         const msgResp = await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${id}?format=full`)
         const msg = await msgResp.json()
         const bodyJsonStr = extractBody(msg.payload)
-        addOpLog(`scanIncomingEmails: processed email - ${bodyJsonStr}`)
 
         // 2/3: Process email
         const packet = JSON.parse(bodyJsonStr)
@@ -156,7 +155,7 @@ export async function scanIncomingEmails() {
 export async function sendEmail(packet) {
   const { addOpLog } = useAppStore.getState()
   addOpLog('sendEmail: started')
-  addOpLog(`sendEmail: sending to ${packet.targetEmail} for ${packet.actionCode}`)
+  addOpLog(`sendEmail: sending to ${packet.targetEmail} for ${packet.featureCode}/${packet.actionCode}`)
   try {
     const mime = [
       `From: ${packet.sourceEmail}`,
@@ -204,12 +203,12 @@ async function gmailFetch(funcName, url, overrides = {}) {
 
 function extractBody(payload) {
   if (payload.body?.data) {
-    return atob(payload.body.data.replace(/-/g, '+').replace(/_/g, '/'))
+    return atob(payload.body.data.replace(/-/g, '+').replace(/_/g, '/')).replace(/\r\n|\r|\n/g, ' ')
   }
   if (payload.parts) {
     for (const part of payload.parts) {
       if (part.mimeType === 'text/plain' && part.body?.data) {
-        return atob(part.body.data.replace(/-/g, '+').replace(/_/g, '/'))
+        return atob(part.body.data.replace(/-/g, '+').replace(/_/g, '/')).replace(/\r\n|\r|\n/g, ' ')
       }
     }
   }
