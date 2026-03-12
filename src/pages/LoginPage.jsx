@@ -64,7 +64,7 @@ function LoginPage() {
           <p>
             SvE is a pure client-side React single-page application (SPA) with no server-side code. It requires Gmail
             login via OAuth 2.0 (only short-lived access token; no credentials stored). All data stays in browser memory
-            during the ~1-hour session — no cookies, and no data leaves the browser.
+            during the 1-hour session — no cookies, and no data leaves the browser.
           </p>
         </section>
       </main>

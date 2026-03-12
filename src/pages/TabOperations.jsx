@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { initializeLabels } from '../gmail/gmailUtils'
+import { initializeLabels, loadEmailToState, scanIncomingEmails } from '../gmail/gmailUtils'
 
 function formatTime(ms) {
   return new Date(ms).toLocaleTimeString('en-GB')
@@ -11,7 +11,12 @@ function TabOperations() {
   const opLogs      = useAppStore((s) => s.opLogs)
 
   useEffect(() => {
-    initializeLabels()
+    const run = async () => {
+      await initializeLabels()
+      await loadEmailToState()
+      await scanIncomingEmails()
+    }
+    run()
   }, [])
 
   return (
