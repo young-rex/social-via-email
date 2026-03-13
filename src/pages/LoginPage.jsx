@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import SocialPage from './SocialPage'
-import { navigate } from './router'
+import { navigate, getPath } from './router'
 import { useAppStore } from '../data/dataStore'
 import { handleSignIn } from '../gmail/gmailLogin'
 import './LoginPage.css'
 
 function LoginPage() {
-  const [pathname, setPathname] = useState(window.location.pathname)
+  const [pathname, setPathname] = useState(getPath())
   const { session } = useAppStore()
 
   useEffect(() => {
-    const onPopState = () => setPathname(window.location.pathname)
+    const onPopState = () => setPathname(getPath())
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
@@ -36,7 +36,7 @@ function LoginPage() {
 
         <section className="login-section">
           <a
-            href="/social"
+            href={`${import.meta.env.BASE_URL}social`}
             className="login-button"
             onClick={handleSignIn}
           >
