@@ -40,7 +40,7 @@ function LoginPage() {
             className="login-button"
             onClick={handleSignIn}
           >
-            <img src="/gmail.png" alt="Gmail icon" className="gmail-icon" />
+            <img src={`${import.meta.env.BASE_URL}gmail.png`} alt="Gmail icon" className="gmail-icon" />
             Sign in to your Gmail
           </a>
         </section>
