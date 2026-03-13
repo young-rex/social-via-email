@@ -77,6 +77,10 @@ export async function loadEmailToState() {
 export async function saveStateToEmail() {
   const { session, setSession, friends, chats, timelines, fullPostMap, addLog } = useAppStore.getState()
   addLog('saveStateToEmail: started')
+  if (!session?.isDataDirty) {
+    addLog('saveStateToEmail: no changes, skipping')
+    return
+  }
   try {
     const { gmailDataLabelId } = session
     if (!gmailDataLabelId) throw new Error(`label "${dataLabel}" not initialized`)
@@ -126,10 +130,16 @@ export async function scanIncomingEmails() {
       addLog('scanIncomingEmails: incoming emails not found')
     } else {
       addLog(`scanIncomingEmails: found ${messages.length} email(s)`)
+
+      // Fetch all messages first so we can sort by internalDate (oldest first)
+      const fetched = []
       for (const { id } of messages) {
-        // 1/3: Read email
         const msgResp = await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${id}?format=full`)
-        const msg = await msgResp.json()
+        fetched.push(await msgResp.json())
+      }
+      fetched.sort((a, b) => Number(a.internalDate) - Number(b.internalDate))
+
+      for (const msg of fetched) {
         const bodyJsonStr = extractBody(msg.payload)
 
         // 2/3: Process email
@@ -137,7 +147,7 @@ export async function scanIncomingEmails() {
         processPacket(packet)
 
         // 3/3: Trash email
-        await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${id}/trash`, { method: 'POST' })
+        await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
         addLog('scanIncomingEmails: trashed email')
       }
       await saveStateToEmail()

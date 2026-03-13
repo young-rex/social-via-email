@@ -71,6 +71,8 @@ export function processPacket(packet) {
   const { chats, setChats, fullPostMap, setFullPostMap } = useAppStore.getState()
   const post = packet.post
 
+  if (fullPostMap.has(post.uuid)) return
+
   if (packet.actionCode === actionCodeHead) {
 
     fullPostMap.set(post.uuid, post)
