@@ -80,19 +80,19 @@ function TabContacts() {
       ) : (
         <p>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {contacts.map((f) => (
-            <li key={f.email} className="social-user-info" style={{ marginBottom: '0.5em' }}>
-              {f.imageUrl && (
+          {contacts.map((c) => (
+            <li key={c.email} className="social-user-info" style={{ marginBottom: '0.5em' }}>
+              {c.imageUrl && (
                 <img
-                  src={f.imageUrl}
+                  src={c.imageUrl}
                   alt="profile"
                   className="social-user-avatar"
                   referrerPolicy="no-referrer"
                 />
               )}
               <div className="social-user-text">
-                <span className="social-user-name">{f.name}</span>
-                <span className="social-user-email">{f.email}</span>
+                <span className="social-user-name">{c.name}</span>
+                <span className="social-user-email">{c.email}</span>
               </div>
             </li>
           ))}

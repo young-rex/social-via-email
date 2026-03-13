@@ -26,7 +26,7 @@ function AddChatDialog({ contacts, onClose }) {
   }
 
   function handleConfirm() {
-    const selectedContacts = visibleContacts.filter((f) => selected[f.email])
+    const selectedContacts = visibleContacts.filter((c) => selected[c.email])
     if (selectedContacts.length === 0) {
       setError('Please select at least one contact.')
       return
@@ -57,25 +57,25 @@ function AddChatDialog({ contacts, onClose }) {
         ) : (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5em' }}>
-              {visibleContacts.map((f) => (
-                <label key={f.email} className="social-user-info" style={{ marginBottom: 0, cursor: 'pointer', alignItems: 'center' }}>
+              {visibleContacts.map((c) => (
+                <label key={c.email} className="social-user-info" style={{ marginBottom: 0, cursor: 'pointer', alignItems: 'center' }}>
                   <input
                     type="checkbox"
-                    checked={!!selected[f.email]}
-                    onChange={() => toggleContact(f.email)}
+                    checked={!!selected[c.email]}
+                    onChange={() => toggleContact(c.email)}
                     style={{ marginRight: '0.4em', flexShrink: 0 }}
                   />
-                  {f.imageUrl && (
+                  {c.imageUrl && (
                     <img
-                      src={f.imageUrl}
+                      src={c.imageUrl}
                       alt="profile"
                       className="social-user-avatar"
                       referrerPolicy="no-referrer"
                     />
                   )}
                   <div className="social-user-text">
-                    <span className="social-user-name">{f.name}</span>
-                    <span className="social-user-email">{f.email}</span>
+                    <span className="social-user-name">{c.name}</span>
+                    <span className="social-user-email">{c.email}</span>
                   </div>
                 </label>
               ))}
@@ -106,54 +106,60 @@ function hhmm(timestamp) {
   return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
 }
 
-function ChatRow({ post: headpost, resolvePerson, fullPostMap, currentUser }) {
+function ChatRow({ post: headpost, resolveContact, fullPostMap, currentUser }) {
   const [expanded, setExpanded] = useState(false)
   const [reply, setReply] = useState('')
 
-  const author = resolvePerson(headpost.author)
+  const author = resolveContact(headpost.author)
   const subscribers = (headpost.subscribers || [])
     .filter((email) => email !== headpost.author)
-    .map(resolvePerson)
+    .map(resolveContact)
   const childPosts = [headpost, ...(headpost.childPostUuids || []).map((id) => fullPostMap.get(id)).filter(Boolean)]
 
   return (
     <li style={{ marginBottom: '0.75em', borderBottom: '1px solid #eee', paddingBottom: '0.6em' }}>
 
-      {/* Author row: big icon on left, two tight lines on right */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-        {author.imageUrl && (
-          <img
-            src={author.imageUrl}
-            alt="profile"
-            className="social-user-avatar"
-            referrerPolicy="no-referrer"
-            style={{ flexShrink: 0 }}
-          />
-        )}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.05em', minWidth: 0 }}>
-          {/* Line 1: name | email */}
-          <span className="social-user-name" style={{ lineHeight: 1.2 }}>
-            {author.name}
-            <span style={{ fontWeight: 400, opacity: 0.65, fontSize: '0.88em', margin: '0 0.4em' }}>|</span>
-            <span style={{ fontWeight: 400, opacity: 0.65, fontSize: '0.88em' }}>{author.email}</span>
-          </span>
-          {/* Line 2: subscribers */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em', flexWrap: 'wrap', lineHeight: 1.2 }}>
-            {subscribers.map((p) => (
-              <span key={p.email} title={`${p.name} | ${p.email}`} style={{ display: 'flex', alignItems: 'center', gap: '0.2em', fontSize: '0.78em', color: '#555' }}>
-                {p.imageUrl && (
-                  <img
-                    src={p.imageUrl}
-                    alt={p.name}
-                    referrerPolicy="no-referrer"
-                    style={{ width: '18px', height: '18px', borderRadius: '50%', objectFit: 'cover' }}
-                  />
-                )}
-                {p.name.split(' ')[0]}
-              </span>
-            ))}
+      {/* Author row: big avatar + name/email two-line, then '+' and subscribers to the right */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+          {author.imageUrl && (
+            <img
+              src={author.imageUrl}
+              alt="profile"
+              className="social-user-avatar"
+              referrerPolicy="no-referrer"
+              style={{ flexShrink: 0 }}
+            />
+          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.05em', minWidth: 0 }}>
+            <span className="social-user-name" style={{ lineHeight: 1.2 }}>{author.name}</span>
+            <span className="social-user-email" style={{ lineHeight: 1.2 }}>{author.email}</span>
           </div>
         </div>
+        {subscribers.length > 0 && (
+          <>
+            <span style={{ width: '24px', height: '24px', fontSize: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5, fontWeight: 400, flexShrink: 0 }}>+</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2em' }}>
+              {[subscribers.filter((_, i) => i % 2 === 0), subscribers.filter((_, i) => i % 2 !== 0)].filter(row => row.length > 0).map((row, ri) => (
+                <div key={ri} style={{ display: 'flex', alignItems: 'center', gap: '0.4em' }}>
+                  {row.map((p) => (
+                    <span key={p.email} title={`${p.name} | ${p.email}`} style={{ display: 'flex', alignItems: 'center', gap: '0.2em', fontSize: '0.78em', color: '#555' }}>
+                      {p.imageUrl && (
+                        <img
+                          src={p.imageUrl}
+                          alt={p.name}
+                          referrerPolicy="no-referrer"
+                          style={{ width: '18px', height: '18px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                      )}
+                      {p.name.split(' ')[0]}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Triangle toggle + head post title + timestamp */}
@@ -173,7 +179,7 @@ function ChatRow({ post: headpost, resolvePerson, fullPostMap, currentUser }) {
       {expanded && (
         <div style={{ paddingLeft: 'calc(40px + 0.75rem + 1.2em)', marginTop: '0.5em', display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
           {childPosts.map((child) => {
-            const childAuthor = resolvePerson(child.author)
+            const childAuthor = resolveContact(child.author)
             const isMine = child.author === currentUser?.email
             const ts = hhmm(child.timestamp)
             const avatar = childAuthor.imageUrl && (
@@ -182,18 +188,19 @@ function ChatRow({ post: headpost, resolvePerson, fullPostMap, currentUser }) {
                 alt={childAuthor.name}
                 title={childAuthor.email}
                 referrerPolicy="no-referrer"
-                style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, cursor: 'default' }}
+                style={{ width: '18px', height: '18px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, cursor: 'default' }}
               />
             )
             const name = <span style={{ fontWeight: 600, flexShrink: 0 }} title={childAuthor.email}>{childAuthor.name.split(' ')[0]}</span>
             const tsSpan = <span style={{ opacity: 0.45, fontSize: '0.85em', flexShrink: 0 }}>{ts}</span>
-            const text = <span style={{ whiteSpace: 'pre-wrap' }}>{child.text}</span>
             return (
-              <div key={child.uuid} style={{ display: 'flex', alignItems: 'center', gap: '0.4em', fontSize: '0.9em', justifyContent: isMine ? 'flex-end' : 'flex-start' }}>
-                {isMine
-                  ? <>{tsSpan}{text}{name}{avatar}</>
-                  : <>{avatar}{name}{text}{tsSpan}</>
-                }
+              <div key={child.uuid} style={{ display: 'flex', flexDirection: 'column', gap: '0.15em', fontSize: '0.9em' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4em', justifyContent: isMine ? 'flex-end' : 'flex-start' }}>
+                  {isMine ? <>{tsSpan}{name}{avatar}</> : <>{avatar}{name}{tsSpan}</>}
+                </div>
+                <div style={{ paddingLeft: isMine ? 0 : 'calc(18px + 0.4em)', paddingRight: isMine ? 'calc(18px + 0.4em)' : 0, textAlign: isMine ? 'right' : 'left', whiteSpace: 'pre-wrap' }}>
+                  {child.text}
+                </div>
               </div>
             )
           })}
@@ -233,9 +240,9 @@ function TabChats() {
   const [showDialog, setShowDialog] = useState(false)
   const [noContacts, setNoContacts] = useState(false)
 
-  function resolvePerson(email) {
+  function resolveContact(email) {
     if (currentUser?.email === email) return currentUser
-    return contacts.find((f) => f.email === email) ?? { email, name: email }
+    return contacts.find((c) => c.email === email) ?? { email, name: email }
   }
 
   function handleAddClick() {
@@ -263,7 +270,7 @@ function TabChats() {
             const headpost = fullPostMap.get(uuid)
             if (!headpost) return null
             return (
-              <ChatRow key={uuid} post={headpost} resolvePerson={resolvePerson} fullPostMap={fullPostMap} currentUser={currentUser} />
+              <ChatRow key={uuid} post={headpost} resolveContact={resolveContact} fullPostMap={fullPostMap} currentUser={currentUser} />
             )
           })}
         </ul>

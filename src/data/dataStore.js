@@ -11,7 +11,7 @@ export function makePacket(sourceEmail, targetEmail, featureCode, actionCode, ov
   }
 }
 
-export function makePerson(email, name, imageUrl = null) {
+export function makeContact(email, name, imageUrl = null) {
   return {
     email: email.toLowerCase(),
     name: name || email.split('@')[0],

@@ -12,7 +12,7 @@ const TABS = [
   { id: 'contacts',      label: 'Contacts' },
   { id: 'chats',         label: 'Chats' },
   { id: 'conversations', label: 'Conversations' },
-  { id: 'logs',       label: 'Logs' },
+  { id: 'logs',          label: 'Logs' },
 ]
 
 function formatTs(ts) {
@@ -83,7 +83,7 @@ function SocialPage() {
         <div style={{ display: activeTab === 'contacts'      ? 'contents' : 'none' }}><TabContacts /></div>
         <div style={{ display: activeTab === 'chats'         ? 'contents' : 'none' }}><TabChats /></div>
         <div style={{ display: activeTab === 'conversations' ? 'contents' : 'none' }}><TabConversations /></div>
-        <div style={{ display: activeTab === 'logs' ? 'contents' : 'none' }}><TabLogs /></div>
+        <div style={{ display: activeTab === 'logs'          ? 'contents' : 'none' }}><TabLogs /></div>
       </div>
     </div>
   )

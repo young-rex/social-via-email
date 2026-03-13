@@ -1,4 +1,4 @@
-import { makePerson, makeSession, useAppStore } from '../data/dataStore'
+import { makeContact, makeSession, useAppStore } from '../data/dataStore'
 import { navigate } from '../pages/router'
 
 const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -36,7 +36,7 @@ export function handleSignIn(e) {
       })
       .then((data) => {
         setSession(makeSession({
-          currentUser: makePerson(data.email, data.name || data.email.split('@')[0], data.picture || null),
+          currentUser: makeContact(data.email, data.name || data.email.split('@')[0], data.picture || null),
           oauthToken: accessToken,
           lastLoginAt: Date.now(),
         }))
