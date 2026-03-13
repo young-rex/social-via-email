@@ -189,10 +189,10 @@ function ChatRow({ post: headpost, resolvePerson, fullPostMap, currentUser }) {
             const tsSpan = <span style={{ opacity: 0.45, fontSize: '0.85em', flexShrink: 0 }}>{ts}</span>
             const text = <span style={{ whiteSpace: 'pre-wrap' }}>{child.text}</span>
             return (
-              <div key={child.uuid} style={{ display: 'flex', alignItems: 'center', gap: '0.4em', fontSize: '0.9em', justifyContent: isMine ? 'flex-start' : 'flex-end' }}>
+              <div key={child.uuid} style={{ display: 'flex', alignItems: 'center', gap: '0.4em', fontSize: '0.9em', justifyContent: isMine ? 'flex-end' : 'flex-start' }}>
                 {isMine
-                  ? <>{avatar}{name}{text}{tsSpan}</>
-                  : <>{tsSpan}{text}{name}{avatar}</>
+                  ? <>{tsSpan}{text}{name}{avatar}</>
+                  : <>{avatar}{name}{text}{tsSpan}</>
                 }
               </div>
             )
