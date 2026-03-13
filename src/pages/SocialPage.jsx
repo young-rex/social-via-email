@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { navigate } from './router'
-import { makeSession, useAppStore } from '../data/dataStore'
+import { useAppStore } from '../data/dataStore'
 import { scanIncomingEmails, saveStateToEmail } from '../gmail/gmailUtils'
 import TabFriends from './TabFriends'
 import TabChats from './TabChats'
@@ -12,7 +12,7 @@ const TABS = [
   { id: 'friends',    label: 'Friends' },
   { id: 'chats',      label: 'Chats' },
   { id: 'timelines',  label: 'Timelines' },
-  { id: 'logs', label: 'Logs' },
+  { id: 'logs',       label: 'Logs' },
 ]
 
 function formatTs(ts) {
@@ -21,11 +21,11 @@ function formatTs(ts) {
 }
 
 function SocialPage() {
-  const { session, setSession } = useAppStore()
+  const { session } = useAppStore()
   const [activeTab, setActiveTab] = useState('logs')
 
   function handleSignOut() {
-    setSession(makeSession())
+    useAppStore.getState().resetStore()
     navigate('/')
   }
 

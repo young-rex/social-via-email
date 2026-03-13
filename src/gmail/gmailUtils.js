@@ -150,7 +150,6 @@ export async function scanIncomingEmails() {
         await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
         addLog('scanIncomingEmails: trashed email')
       }
-      await saveStateToEmail()
     }
 
     const { session, setSession } = useAppStore.getState()

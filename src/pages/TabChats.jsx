@@ -102,6 +102,10 @@ function AddChatDialog({ friends, onClose }) {
   )
 }
 
+function hhmm(timestamp) {
+  return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
+}
+
 function ChatRow({ post: headpost, resolvePerson, fullPostMap, currentUser }) {
   const [expanded, setExpanded] = useState(false)
   const [reply, setReply] = useState('')
@@ -152,36 +156,43 @@ function ChatRow({ post: headpost, resolvePerson, fullPostMap, currentUser }) {
         </div>
       </div>
 
-      {/* Triangle toggle + message on same row */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.3em', marginTop: '0.3em', paddingLeft: 'calc(40px + 0.75rem)' }}>
+      {/* Triangle toggle + head post title + timestamp */}
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.3em', marginTop: '1em', paddingLeft: 'calc(40px + 0.75rem)' }}>
         <button
           onClick={() => setExpanded((v) => !v)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75em', color: '#888', padding: '0.2em 0', lineHeight: 1, flexShrink: 0, marginTop: '0.2em' }}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.75em', color: '#888', padding: '0.2em 0', lineHeight: 1, flexShrink: 0, alignSelf: 'flex-start', marginTop: '0.2em' }}
           title={expanded ? 'Collapse' : 'Expand'}
         >
           {expanded ? '▼' : '▶'}
         </button>
-        <div
-          style={{ fontSize: '1.05em', whiteSpace: 'pre-wrap', flex: 1 }}
-        >
-          {headpost.text}
-        </div>
+        <div style={{ fontSize: '1.05em', whiteSpace: 'pre-wrap' }}>{headpost.text}</div>
+        <span style={{ opacity: 0.45, fontSize: '0.85em', flexShrink: 0 }}>{hhmm(headpost.timestamp)}</span>
       </div>
 
       {/* Expanded: child posts + reply input */}
       {expanded && (
         <div style={{ paddingLeft: 'calc(40px + 0.75rem + 1.2em)', marginTop: '0.5em', display: 'flex', flexDirection: 'column', gap: '0.5em' }}>
-          {childPosts.length > 0 && childPosts.map((child) => {
+          {childPosts.map((child) => {
             const childAuthor = resolvePerson(child.author)
-            const firstName = childAuthor.name.split(' ')[0]
             const isMine = child.author === currentUser?.email
-            const hhmm = new Date(child.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
-            const tsSpan = <span style={{ opacity: 0.45, fontSize: '0.85em', flexShrink: 0 }}>{hhmm}</span>
+            const ts = hhmm(child.timestamp)
+            const avatar = childAuthor.imageUrl && (
+              <img
+                src={childAuthor.imageUrl}
+                alt={childAuthor.name}
+                title={childAuthor.email}
+                referrerPolicy="no-referrer"
+                style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0, cursor: 'default' }}
+              />
+            )
+            const name = <span style={{ fontWeight: 600, flexShrink: 0 }} title={childAuthor.email}>{childAuthor.name.split(' ')[0]}</span>
+            const tsSpan = <span style={{ opacity: 0.45, fontSize: '0.85em', flexShrink: 0 }}>{ts}</span>
+            const text = <span style={{ whiteSpace: 'pre-wrap' }}>{child.text}</span>
             return (
-              <div key={child.uuid} style={{ display: 'flex', alignItems: 'baseline', gap: '0.35em', justifyContent: isMine ? 'flex-start' : 'flex-end', fontSize: '0.9em' }}>
+              <div key={child.uuid} style={{ display: 'flex', alignItems: 'center', gap: '0.4em', fontSize: '0.9em', justifyContent: isMine ? 'flex-start' : 'flex-end' }}>
                 {isMine
-                  ? <>{tsSpan}<span><span style={{ fontWeight: 600 }}>{firstName}</span>{': '}{child.text}</span></>
-                  : <><span>{child.text}{' :'}<span style={{ fontWeight: 600 }}>{firstName}</span></span>{tsSpan}</>
+                  ? <>{avatar}{name}{text}{tsSpan}</>
+                  : <>{tsSpan}{text}{name}{avatar}</>
                 }
               </div>
             )
