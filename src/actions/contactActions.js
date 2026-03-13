@@ -1,27 +1,27 @@
 import { useAppStore, makePacket } from '../data/dataStore.js'
 import { sendEmail } from '../gmail/gmailUtils.js'
 
-export const featureCode = 'friend'
+export const featureCode = 'contact'
 const actionCodeRequest = 'friend?'
 const actionCodeAccept = 'friend!'
 
-/*  Packet structure for friend actions:
+/*  Packet structure for contact actions:
     {
       sourceEmail,
       targetEmail,
       appCode: "Social-via-Email",
-      featureCode: "friend",
-      actionCode: "friend?" / "friend!",
-      friend: Person,
+      featureCode: "contact",
+      actionCode: "contact?" / "contact!",
+      contact: Person,
     }
 */
 
-export function uiAddFriend(email) {
+export function uiAddContact(email) {
   const { session } = useAppStore.getState()
   const currentUser = session.currentUser
 
   const packet = makePacket(currentUser.email, email, featureCode, actionCodeRequest, {
-    friend: currentUser,
+    contact: currentUser,
   })
 
   sendEmail(packet)
@@ -29,25 +29,25 @@ export function uiAddFriend(email) {
 
 export function processPacket(packet) {
   const { addLog } = useAppStore.getState()
-  addLog(`friendActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
+  addLog(`contactActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
 
-  if (packet.sourceEmail !== packet.friend.email) return
+  if (packet.sourceEmail !== packet.contact.email) return
 
-  const { friends, setFriends } = useAppStore.getState()
-  if (friends.some((f) => f.email === packet.friend.email)) return
+  const { contacts, setContacts } = useAppStore.getState()
+  if (contacts.some((f) => f.email === packet.contact.email)) return
 
   if (packet.actionCode === actionCodeAccept) {
 
-    setFriends([...friends, packet.friend])
+    setContacts([...contacts, packet.contact])
 
   } else if (packet.actionCode === actionCodeRequest) {
 
-    setFriends([...friends, packet.friend])
+    setContacts([...contacts, packet.contact])
 
     const { session } = useAppStore.getState()
     const currentUser = session.currentUser
-    const respPacket = makePacket(currentUser.email, packet.friend.email, featureCode, actionCodeAccept, {
-      friend: currentUser,
+    const respPacket = makePacket(currentUser.email, packet.contact.email, featureCode, actionCodeAccept, {
+      contact: currentUser,
     })
 
     sendEmail(respPacket)

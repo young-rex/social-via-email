@@ -53,9 +53,9 @@ export function makeLogEntry(message) {
 const initialState = {
   session:     makeSession(),
   logs:        [],
-  friends:     [],
+  contacts:    [],
   chats:       [],
-  timelines:   [],
+  conversations: [],
   fullPostMap: new Map(),
 }
 
@@ -68,11 +68,11 @@ export const useAppStore = create((set) => ({
   addLog:      (message) => set((s) => ({ logs: [...s.logs, makeLogEntry(message)] })),
   clearLogs:   () => set({ logs: [] }),
 
-  setFriends:  (friends) => set((s) => ({ friends, session: { ...s.session, isDataDirty: true } })),
+  setContacts: (contacts) => set((s) => ({ contacts, session: { ...s.session, isDataDirty: true } })),
 
   setChats:    (chats) => set((s) => ({ chats, session: { ...s.session, isDataDirty: true } })),
 
-  setTimelines:(timelines) => set((s) => ({ timelines, session: { ...s.session, isDataDirty: true } })),
+  setConversations: (conversations) => set((s) => ({ conversations, session: { ...s.session, isDataDirty: true } })),
 
   setFullPostMap: (fullPostMap) => set((s) => ({ fullPostMap, session: { ...s.session, isDataDirty: true } })),
 }))

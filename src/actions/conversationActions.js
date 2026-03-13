@@ -1,16 +1,16 @@
 import { useAppStore, makePacket, makePost } from '../data/dataStore.js'
 import { sendEmail } from '../gmail/gmailUtils.js'
 
-export const featureCode = 'thread'
+export const featureCode = 'conversation'
 const actionCodeHead = 'headpost'
 const actionCodePost = 'post'
 
-/*  Packet structure for thread actions:
+/*  Packet structure for conversation actions:
     {
       sourceEmail,
       targetEmail,
       appCode: "Social-via-Email",
-      featureCode: "thread",
+      featureCode: "conversation",
       actionCode: "headpost" / "post",
       post: Post,
     }
@@ -19,24 +19,24 @@ const actionCodePost = 'post'
     Reply:    headPostUuid: <root uuid>, parentPostUuid: <direct parent uuid>, subscribers: []
 */
 
-export function uiAddTimeline(message) {
-  const { session, friends, timelines, setTimelines, fullPostMap, setFullPostMap } = useAppStore.getState()
+export function uiAddConversation(message) {
+  const { session, contacts, conversations, setConversations, fullPostMap, setFullPostMap } = useAppStore.getState()
 
   const currentUser = session.currentUser
-  const subscribers = [currentUser.email, ...friends.map((f) => f.email)]
+  const subscribers = [currentUser.email, ...contacts.map((f) => f.email)]
   const headpost = makePost(currentUser.email, message, { subscribers })
 
   fullPostMap.set(headpost.uuid, headpost)
   setFullPostMap(new Map(fullPostMap))
-  setTimelines([...timelines, headpost.uuid])
+  setConversations([...conversations, headpost.uuid])
 
-  friends.forEach((f) => {
+  contacts.forEach((f) => {
     const packet = makePacket(currentUser.email, f.email, featureCode, actionCodeHead, { post: headpost })
     sendEmail(packet)
   })
 }
 
-export function uiAddTimelinePost(message, headpost, parentPost) {
+export function uiAddConversationPost(message, headpost, parentPost) {
   const { session, fullPostMap, setFullPostMap } = useAppStore.getState()
   const currentUser = session.currentUser
 
@@ -60,9 +60,9 @@ export function uiAddTimelinePost(message, headpost, parentPost) {
 
 export function processPacket(packet) {
   const { addLog } = useAppStore.getState()
-  addLog(`threadActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
+  addLog(`conversationActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
 
-  const { timelines, setTimelines, fullPostMap, setFullPostMap } = useAppStore.getState()
+  const { conversations, setConversations, fullPostMap, setFullPostMap } = useAppStore.getState()
   const post = packet.post
 
   if (fullPostMap.has(post.uuid)) return
@@ -71,7 +71,7 @@ export function processPacket(packet) {
 
     fullPostMap.set(post.uuid, post)
     setFullPostMap(new Map(fullPostMap))
-    setTimelines([...timelines, post.uuid])
+    setConversations([...conversations, post.uuid])
 
   } else if (packet.actionCode === actionCodePost) {
 

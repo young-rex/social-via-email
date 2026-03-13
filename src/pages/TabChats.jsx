@@ -6,29 +6,29 @@ function NoFriendsDialog({ onClose }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
       <div style={{ background: '#fff', color: '#111', padding: '1.5em 2em', borderRadius: '8px', minWidth: '320px', display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
-        <p style={{ margin: 0 }}>Please add friends to chat</p>
+        <p style={{ margin: 0 }}>Please add contacts to chat</p>
         <button onClick={onClose} style={{ alignSelf: 'flex-end' }}>Close</button>
       </div>
     </div>
   )
 }
 
-function AddChatDialog({ friends, onClose }) {
+function AddChatDialog({ contacts, onClose }) {
   const [message, setMessage] = useState('')
   const [selected, setSelected] = useState({})
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
 
-  const visibleFriends = friends.slice(0, 6)
+  const visibleContacts = contacts.slice(0, 6)
 
-  function toggleFriend(email) {
+  function toggleContact(email) {
     setSelected((prev) => ({ ...prev, [email]: !prev[email] }))
   }
 
   function handleConfirm() {
-    const selectedFriends = visibleFriends.filter((f) => selected[f.email])
-    if (selectedFriends.length === 0) {
-      setError('Please select at least one friend.')
+    const selectedContacts = visibleContacts.filter((f) => selected[f.email])
+    if (selectedContacts.length === 0) {
+      setError('Please select at least one contact.')
       return
     }
     if (!message.trim()) {
@@ -37,7 +37,7 @@ function AddChatDialog({ friends, onClose }) {
     }
     setError('')
 
-    uiAddChat(message.trim(), selectedFriends)
+    uiAddChat(message.trim(), selectedContacts)
 
     setSuccess(true)
   }
@@ -57,12 +57,12 @@ function AddChatDialog({ friends, onClose }) {
         ) : (
           <>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5em' }}>
-              {visibleFriends.map((f) => (
+              {visibleContacts.map((f) => (
                 <label key={f.email} className="social-user-info" style={{ marginBottom: 0, cursor: 'pointer', alignItems: 'center' }}>
                   <input
                     type="checkbox"
                     checked={!!selected[f.email]}
-                    onChange={() => toggleFriend(f.email)}
+                    onChange={() => toggleContact(f.email)}
                     style={{ marginRight: '0.4em', flexShrink: 0 }}
                   />
                   {f.imageUrl && (
@@ -228,19 +228,19 @@ function ChatRow({ post: headpost, resolvePerson, fullPostMap, currentUser }) {
 function TabChats() {
   const chats = useAppStore((s) => s.chats)
   const fullPostMap = useAppStore((s) => s.fullPostMap)
-  const friends = useAppStore((s) => s.friends)
+  const contacts = useAppStore((s) => s.contacts)
   const currentUser = useAppStore((s) => s.session.currentUser)
   const [showDialog, setShowDialog] = useState(false)
-  const [noFriends, setNoFriends] = useState(false)
+  const [noContacts, setNoContacts] = useState(false)
 
   function resolvePerson(email) {
     if (currentUser?.email === email) return currentUser
-    return friends.find((f) => f.email === email) ?? { email, name: email }
+    return contacts.find((f) => f.email === email) ?? { email, name: email }
   }
 
   function handleAddClick() {
-    if (friends.length === 0) {
-      setNoFriends(true)
+    if (contacts.length === 0) {
+      setNoContacts(true)
     } else {
       setShowDialog(true)
     }
@@ -269,8 +269,8 @@ function TabChats() {
         </ul>
         </p>
       )}
-      {noFriends && <NoFriendsDialog onClose={() => setNoFriends(false)} />}
-      {showDialog && <AddChatDialog friends={friends} onClose={() => setShowDialog(false)} />}
+      {noContacts && <NoFriendsDialog onClose={() => setNoContacts(false)} />}
+      {showDialog && <AddChatDialog contacts={contacts} onClose={() => setShowDialog(false)} />}
     </div>
   )
 }

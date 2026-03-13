@@ -58,10 +58,10 @@ export async function loadEmailToState() {
       const msg = await msgResp.json()
       const jsonObj = JSON.parse(extractBody(msg.payload))
 
-      const { session, setSession, setFriends, setChats, setTimelines, setFullPostMap } = useAppStore.getState()
-      setFriends(jsonObj.friends)
+      const { session, setSession, setContacts, setChats, setConversations, setFullPostMap } = useAppStore.getState()
+      setContacts(jsonObj.contacts)
       setChats(jsonObj.chats)
-      setTimelines(jsonObj.timelines)
+      setConversations(jsonObj.conversations)
       setFullPostMap(new Map(jsonObj.fullPostMap))
 
       setSession({ ...session, isDataDirty: false })
@@ -75,7 +75,7 @@ export async function loadEmailToState() {
 }
 
 export async function saveStateToEmail() {
-  const { session, setSession, friends, chats, timelines, fullPostMap, addLog } = useAppStore.getState()
+  const { session, setSession, contacts, chats, conversations, fullPostMap, addLog } = useAppStore.getState()
   addLog('saveStateToEmail: started')
   if (!session?.isDataDirty) {
     addLog('saveStateToEmail: no changes, skipping')
@@ -85,7 +85,7 @@ export async function saveStateToEmail() {
     const { gmailDataLabelId } = session
     if (!gmailDataLabelId) throw new Error(`label "${dataLabel}" not initialized`)
 
-    const bodyJsonStr = JSON.stringify({ friends, chats, timelines, fullPostMap: [...fullPostMap.entries()] })
+    const bodyJsonStr = JSON.stringify({ contacts, chats, conversations, fullPostMap: [...fullPostMap.entries()] })
 
     // Find existing memory-dump emails before inserting
     const query = encodeURIComponent(`label:${dataLabel} subject:memory-dump`)
@@ -93,8 +93,7 @@ export async function saveStateToEmail() {
     const { messages: oldMessages } = await searchRes.json()
 
     // Build and insert new RFC 2822 message
-    const userEmail = session.currentUser?.email ?? ''
-    const mime = [`From: ${userEmail}`, `To: ${userEmail}`, 'Subject: memory-dump', 'Content-Type: text/plain; charset=UTF-8', '', bodyJsonStr].join('\r\n')
+    const mime = [`From: memory-dump@localhost`, `To: memory-dump@localhost`, 'Subject: memory-dump', 'Content-Type: text/plain; charset=UTF-8', '', bodyJsonStr].join('\r\n')
     await gmailFetch('saveStateToEmail', `${GMAIL_API}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

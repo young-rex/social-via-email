@@ -1,14 +1,14 @@
 import { useAppStore } from '../data/dataStore'
-import * as friendAction from './friendActions'
+import * as contactAction from './contactActions'
 import * as chatAction from './chatActions'
-import * as threadAction from './threadActions'
+import * as conversationAction from './conversationActions'
 
 /*  Packet structure features:
     {
       sourceEmail,
       targetEmail,
       appCode: "Social-via-Email",
-      featureCode: "friend" / "chat" / "thread",
+      featureCode: "contact" / "chat" / "conversation",
       actionCode,
       ...overrides,
     }
@@ -25,7 +25,7 @@ export function processPacket(packet) {
   if (packet.appCode !== APP_CODE) return
   if (!EMAIL_REGEX.test(packet.sourceEmail) || packet.sourceEmail === packet.targetEmail) return
 
-  if (packet.featureCode === friendAction.featureCode) friendAction.processPacket(packet)
+  if (packet.featureCode === contactAction.featureCode) contactAction.processPacket(packet)
   else if (packet.featureCode === chatAction.featureCode) chatAction.processPacket(packet)
-  else if (packet.featureCode === threadAction.featureCode) threadAction.processPacket(packet)
+  else if (packet.featureCode === conversationAction.featureCode) conversationAction.processPacket(packet)
 }

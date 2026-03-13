@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { uiAddTimeline, uiAddTimelinePost } from '../actions/threadActions'
+import { uiAddConversation, uiAddConversationPost } from '../actions/conversationActions'
 
-function AddTimelineDialog({ friends, onClose }) {
+function AddConversationDialog({ contacts, onClose }) {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -13,7 +13,7 @@ function AddTimelineDialog({ friends, onClose }) {
       return
     }
     setError('')
-    uiAddTimeline(message.trim())
+    uiAddConversation(message.trim())
     setSuccess(true)
   }
 
@@ -26,17 +26,17 @@ function AddTimelineDialog({ friends, onClose }) {
       <div style={{ background: '#fff', color: '#111', padding: '1.5em 2em', borderRadius: '8px', minWidth: '360px', display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
         {success ? (
           <>
-            <p style={{ margin: 0 }}>Your timeline post has been sent.</p>
+            <p style={{ margin: 0 }}>Your conversation post has been sent.</p>
             <button onClick={onClose} style={{ alignSelf: 'flex-end' }}>Close</button>
           </>
         ) : (
           <>
-            {friends.length === 0 && (
-              <p style={{ margin: 0, color: '#888', fontSize: '0.85em' }}>You have no friends yet — this post will only be visible to you.</p>
+            {contacts.length === 0 && (
+              <p style={{ margin: 0, color: '#888', fontSize: '0.85em' }}>You have no contacts yet — this post will only be visible to you.</p>
             )}
-            <label htmlFor="timeline-message" style={{ fontWeight: 600 }}>What's on your mind?</label>
+            <label htmlFor="conversation-message" style={{ fontWeight: 600 }}>What's on your mind?</label>
             <textarea
-              id="timeline-message"
+              id="conversation-message"
               rows={3}
               value={message}
               onChange={(e) => { setMessage(e.target.value); setError('') }}
@@ -67,7 +67,7 @@ function ReplyPopup({ headpost, replyTarget, resolvePerson, onConfirm, onClose }
       setError('Please type a message.')
       return
     }
-    uiAddTimelinePost(message.trim(), headpost, replyTarget)
+    uiAddConversationPost(message.trim(), headpost, replyTarget)
     onConfirm()
   }
 
@@ -179,7 +179,7 @@ function ReplyNode({ post, fullPostMap, resolvePerson, setReplyTarget }) {
   )
 }
 
-function TimelineRow({ post: headpost, resolvePerson, fullPostMap }) {
+function ConversationRow({ post: headpost, resolvePerson, fullPostMap }) {
   const [expanded, setExpanded] = useState(false)
   const [replyTarget, setReplyTarget] = useState(null)
 
@@ -278,16 +278,16 @@ function TimelineRow({ post: headpost, resolvePerson, fullPostMap }) {
   )
 }
 
-function TabTimelines() {
-  const timelines = useAppStore((s) => s.timelines)
+function TabConversations() {
+  const conversations = useAppStore((s) => s.conversations)
   const fullPostMap = useAppStore((s) => s.fullPostMap)
-  const friends = useAppStore((s) => s.friends)
+  const contacts = useAppStore((s) => s.contacts)
   const currentUser = useAppStore((s) => s.session.currentUser)
   const [showDialog, setShowDialog] = useState(false)
 
   function resolvePerson(email) {
     if (currentUser?.email === email) return currentUser
-    return friends.find((f) => f.email === email) ?? { email, name: email }
+    return contacts.find((f) => f.email === email) ?? { email, name: email }
   }
 
   return (
@@ -296,26 +296,26 @@ function TabTimelines() {
         onClick={() => setShowDialog(true)}
         style={{ fontSize: '0.75em', padding: '0.25em 1em', border: '1px solid green', color: 'green' }}
       >
-        Add a new timeline
+        Add a new conversation
       </button>
-      {timelines.length === 0 ? (
-        <p>Please add new timelines</p>
+      {conversations.length === 0 ? (
+        <p>Please add new conversations</p>
       ) : (
         <p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {timelines.map((uuid) => {
+            {conversations.map((uuid) => {
               const headpost = fullPostMap.get(uuid)
               if (!headpost) return null
               return (
-                <TimelineRow key={uuid} post={headpost} resolvePerson={resolvePerson} fullPostMap={fullPostMap} currentUser={currentUser} />
+                <ConversationRow key={uuid} post={headpost} resolvePerson={resolvePerson} fullPostMap={fullPostMap} currentUser={currentUser} />
               )
             })}
           </ul>
         </p>
       )}
-      {showDialog && <AddTimelineDialog friends={friends} onClose={() => setShowDialog(false)} />}
+      {showDialog && <AddConversationDialog contacts={contacts} onClose={() => setShowDialog(false)} />}
     </div>
   )
 }
 
-export default TabTimelines
+export default TabConversations

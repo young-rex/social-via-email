@@ -2,16 +2,16 @@ import { useState } from 'react'
 import { navigate } from './router'
 import { useAppStore } from '../data/dataStore'
 import { scanIncomingEmails, saveStateToEmail } from '../gmail/gmailUtils'
-import TabFriends from './TabFriends'
+import TabContacts from './TabContacts'
 import TabChats from './TabChats'
-import TabTimelines from './TabTimelines'
+import TabConversations from './TabConversations'
 import TabLogs from './TabLogs'
 import './SocialPage.css'
 
 const TABS = [
-  { id: 'friends',    label: 'Friends' },
-  { id: 'chats',      label: 'Chats' },
-  { id: 'timelines',  label: 'Timelines' },
+  { id: 'contacts',      label: 'Contacts' },
+  { id: 'chats',         label: 'Chats' },
+  { id: 'conversations', label: 'Conversations' },
   { id: 'logs',       label: 'Logs' },
 ]
 
@@ -80,9 +80,9 @@ function SocialPage() {
       </nav>
 
       <div className="social-content">
-        <div style={{ display: activeTab === 'friends'    ? 'contents' : 'none' }}><TabFriends /></div>
-        <div style={{ display: activeTab === 'chats'      ? 'contents' : 'none' }}><TabChats /></div>
-        <div style={{ display: activeTab === 'timelines'  ? 'contents' : 'none' }}><TabTimelines /></div>
+        <div style={{ display: activeTab === 'contacts'      ? 'contents' : 'none' }}><TabContacts /></div>
+        <div style={{ display: activeTab === 'chats'         ? 'contents' : 'none' }}><TabChats /></div>
+        <div style={{ display: activeTab === 'conversations' ? 'contents' : 'none' }}><TabConversations /></div>
         <div style={{ display: activeTab === 'logs' ? 'contents' : 'none' }}><TabLogs /></div>
       </div>
     </div>

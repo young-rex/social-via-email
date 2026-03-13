@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { uiAddFriend } from '../actions/friendActions'
+import { uiAddContact } from '../actions/contactActions'
 
-function AddFriendDialog({ onClose }) {
-  const friends = useAppStore((s) => s.friends)
+function AddContactDialog({ onClose }) {
+  const contacts = useAppStore((s) => s.contacts)
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -15,13 +15,13 @@ function AddFriendDialog({ onClose }) {
       setError('Invalid email format.')
       return
     }
-    if (friends.some((f) => f.email === email)) {
-      setError('This person is already your friend.')
+    if (contacts.some((f) => f.email === email)) {
+      setError('This person is already your contact.')
       return
     }
     setError('')
 
-    uiAddFriend(email)
+    uiAddContact(email)
 
     setSuccess(true)
   }
@@ -41,9 +41,9 @@ function AddFriendDialog({ onClose }) {
           </>
         ) : (
           <>
-            <label htmlFor="friend-email" style={{ fontWeight: 600 }}>Provide a friend's email</label>
+            <label htmlFor="contact-email" style={{ fontWeight: 600 }}>Provide a contact's email</label>
             <input
-              id="friend-email"
+              id="contact-email"
               type="text"
               value={email}
               onChange={(e) => { setEmail(e.target.value.toLowerCase()); setError('') }}
@@ -63,8 +63,8 @@ function AddFriendDialog({ onClose }) {
   )
 }
 
-function TabFriends() {
-  const friends = useAppStore((s) => s.friends)
+function TabContacts() {
+  const contacts = useAppStore((s) => s.contacts)
   const [showDialog, setShowDialog] = useState(false)
 
   return (
@@ -73,14 +73,14 @@ function TabFriends() {
         onClick={() => setShowDialog(true)}
         style={{ fontSize: '0.75em', padding: '0.25em 1em', border: '1px solid green', color: 'green' }}
       >
-        Add a new friend
+        Add a new contact
       </button>
-      {friends.length === 0 ? (
-        <p>Please add new friends</p>
+      {contacts.length === 0 ? (
+        <p>Please add new contacts</p>
       ) : (
         <p>
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {friends.map((f) => (
+          {contacts.map((f) => (
             <li key={f.email} className="social-user-info" style={{ marginBottom: '0.5em' }}>
               {f.imageUrl && (
                 <img
@@ -99,9 +99,9 @@ function TabFriends() {
         </ul>
         </p>
       )}
-      {showDialog && <AddFriendDialog onClose={() => setShowDialog(false)} />}
+      {showDialog && <AddContactDialog onClose={() => setShowDialog(false)} />}
     </div>
   )
 }
 
-export default TabFriends
+export default TabContacts
