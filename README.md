@@ -1,16 +1,48 @@
-# React + Vite
+# Social via Email
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+<details>
+<summary>How to use Social via Email?</summary>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* Installation
+* User manual
+* Things to explore
 
-## React Compiler
+</details>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+<details>
+<summary>What is Lemitar?</summary>
 
-## Expanding the ESLint configuration
+* ID
+* Body
+* Storage
+* Protocols
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+</details>
+
+<details>
+<summary>Why is Social via Email a proof of concept for Lemitar?</summary>
+
+* Email address as ID
+* App + Email delivery as Body
+* Email as Storage
+* JSON as Protocols
+
+</details>
+
+<details>
+<summary>How does Lemitar empower personal social interaction?</summary>
+
+* The secret of social media
+  * Linear and tree-structured data models
+  * Benefits at personal and societal scales
+* Lemina for data models
+* Lemitar at personal scale
+* Lemitar at societal scale
+
+</details>
+
+## Detailed sections
+
+Coming soon...
