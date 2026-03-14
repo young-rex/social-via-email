@@ -4,6 +4,7 @@ import { sendEmail } from '../gmail/gmailUtils.js'
 export const featureCode = 'conversation'
 const actionCodeHead = 'headpost'
 const actionCodePost = 'post'
+const actionCodeUnsub = 'unsubscribe'
 
 export function uiAddHeadPost(message) {
   const { session, contacts, conversations, setConversations, fullPostMap, setFullPostMap } = useAppStore.getState()
@@ -44,13 +45,50 @@ export function uiAddPost(message, headpost, parentPost) {
     })
 }
 
+function collectAllUuids(post, fullPostMap) {
+  const uuids = [post.uuid]
+  for (const childUuid of post.childPostUuids) {
+    const child = fullPostMap.get(childUuid)
+    if (child) uuids.push(...collectAllUuids(child, fullPostMap))
+  }
+  return uuids
+}
+
+export function uiUnsubscribe(headpost) {
+  const { session, conversations, setConversations, fullPostMap, setFullPostMap } = useAppStore.getState()
+  const currentUser = session.currentUser
+
+  const uuidsToDelete = collectAllUuids(headpost, fullPostMap)
+  uuidsToDelete.forEach((uuid) => fullPostMap.delete(uuid))
+  setFullPostMap(new Map(fullPostMap))
+  setConversations(conversations.filter((uuid) => uuid !== headpost.uuid))
+
+  headpost.subscribers
+    .filter((email) => email !== currentUser.email)
+    .forEach((email) => {
+      const packet = makePacket(currentUser.email, email, featureCode, actionCodeUnsub, { headpostuuid: headpost.uuid, unsubscriber: currentUser.email })
+      sendEmail(packet)
+    })
+}
+
 export function processPacket(packet) {
   const { addLog } = useAppStore.getState()
   addLog(`conversationActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
 
   const { conversations, setConversations, fullPostMap, setFullPostMap } = useAppStore.getState()
-  const post = packet.post
 
+  if (packet.actionCode === actionCodeUnsub) {
+
+    const headpost = fullPostMap.get(packet.headpostuuid)
+    if (!headpost) return
+
+    headpost.subscribers = headpost.subscribers.filter((email) => email !== packet.unsubscriber)
+    setFullPostMap(new Map(fullPostMap))
+    return
+
+  }
+
+  const post = packet.post
   if (fullPostMap.has(post.uuid)) return
 
   if (packet.actionCode === actionCodeHead) {

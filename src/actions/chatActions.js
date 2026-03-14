@@ -4,6 +4,7 @@ import { sendEmail } from '../gmail/gmailUtils.js'
 export const featureCode = 'chat'
 const actionCodeHead = 'headpost'
 const actionCodePost = 'post'
+const actionCodeUnsub = 'unsubscribe'
 
 export function uiAddHeadPost(message, selectedContacts) {
   const { session, chats, setChats, fullPostMap, setFullPostMap } = useAppStore.getState()
@@ -41,13 +42,41 @@ export function uiAddPost(message, headpost) {
     })
 }
 
+export function uiUnsubscribe(headpost) {
+  const { session, chats, setChats, fullPostMap, setFullPostMap } = useAppStore.getState()
+  const currentUser = session.currentUser
+
+  const uuidsToDelete = [headpost.uuid, ...headpost.childPostUuids]
+  uuidsToDelete.forEach((uuid) => fullPostMap.delete(uuid))
+  setFullPostMap(new Map(fullPostMap))
+  setChats(chats.filter((uuid) => uuid !== headpost.uuid))
+
+  headpost.subscribers
+    .filter((email) => email !== currentUser.email)
+    .forEach((email) => {
+      const packet = makePacket(currentUser.email, email, featureCode, actionCodeUnsub, { headpostuuid: headpost.uuid, unsubscriber: currentUser.email })
+      sendEmail(packet)
+    })
+}
+
 export function processPacket(packet) {
   const { addLog } = useAppStore.getState()
   addLog(`chatActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
 
   const { chats, setChats, fullPostMap, setFullPostMap } = useAppStore.getState()
-  const post = packet.post
 
+  if (packet.actionCode === actionCodeUnsub) {
+
+    const headpost = fullPostMap.get(packet.headpostuuid)
+    if (!headpost) return
+
+    headpost.subscribers = headpost.subscribers.filter((email) => email !== packet.unsubscriber)
+    setFullPostMap(new Map(fullPostMap))
+    return
+
+  }
+
+  const post = packet.post
   if (fullPostMap.has(post.uuid)) return
 
   if (packet.actionCode === actionCodeHead) {

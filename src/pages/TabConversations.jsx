@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { uiAddHeadPost, uiAddPost } from '../actions/conversationActions'
+import { uiAddHeadPost, uiAddPost, uiUnsubscribe } from '../actions/conversationActions'
 
 function AddConversationDialog({ contacts, onClose }) {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
 
   function handleConfirm() {
     if (!message.trim()) {
@@ -14,7 +13,7 @@ function AddConversationDialog({ contacts, onClose }) {
     }
     setError('')
     uiAddHeadPost(message.trim())
-    setSuccess(true)
+    onClose()
   }
 
   function handleKeyDown(e) {
@@ -24,33 +23,26 @@ function AddConversationDialog({ contacts, onClose }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
       <div style={{ background: '#fff', color: '#111', padding: '1.5em 2em', borderRadius: '8px', minWidth: '360px', display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
-        {success ? (
-          <>
-            <p style={{ margin: 0 }}>Your conversation post has been sent.</p>
-            <button onClick={onClose} style={{ alignSelf: 'flex-end' }}>Close</button>
-          </>
-        ) : (
-          <>
-            {contacts.length === 0 && (
-              <p style={{ margin: 0, color: '#888', fontSize: '0.85em' }}>You have no contacts yet — this post will only be visible to you.</p>
-            )}
-            <label htmlFor="conversation-message" style={{ fontWeight: 600 }}>What's on your mind?</label>
-            <textarea
-              id="conversation-message"
-              rows={3}
-              value={message}
-              onChange={(e) => { setMessage(e.target.value); setError('') }}
-              onKeyDown={handleKeyDown}
-              autoFocus
-              style={{ padding: '0.4em', fontSize: '1em', resize: 'none', overflowY: 'auto' }}
-            />
-            {error && <span style={{ color: 'red', fontSize: '0.85em' }}>{error}</span>}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5em' }}>
-              <button onClick={onClose}>Cancel</button>
-              <button onClick={handleConfirm}>Confirm</button>
-            </div>
-          </>
-        )}
+        <>
+          {contacts.length === 0 && (
+            <p style={{ margin: 0, color: '#888', fontSize: '0.85em' }}>You have no contacts yet — this post will only be visible to you.</p>
+          )}
+          <label htmlFor="conversation-message" style={{ fontWeight: 600 }}>What's on your mind?</label>
+          <textarea
+            id="conversation-message"
+            rows={3}
+            value={message}
+            onChange={(e) => { setMessage(e.target.value); setError('') }}
+            onKeyDown={handleKeyDown}
+            autoFocus
+            style={{ padding: '0.4em', fontSize: '1em', resize: 'none', overflowY: 'auto' }}
+          />
+          {error && <span style={{ color: 'red', fontSize: '0.85em' }}>{error}</span>}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5em' }}>
+            <button onClick={onClose}>Cancel</button>
+            <button onClick={handleConfirm}>Confirm</button>
+          </div>
+        </>
       </div>
     </div>
   )
@@ -122,6 +114,20 @@ function ReplyPopup({ headpost, replyTarget, resolveContact, onConfirm, onClose 
   )
 }
 
+function UnsubscribeConfirmDialog({ onConfirm, onClose }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+      <div style={{ background: '#fff', color: '#111', padding: '1.5em 2em', borderRadius: '8px', minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
+        <p style={{ margin: 0 }}>Are you sure you want to unsubscribe from this conversation?</p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5em' }}>
+          <button onClick={onClose}>Cancel</button>
+          <button onClick={onConfirm} style={{ color: '#c00' }}>Unsubscribe</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function hhmm(timestamp) {
   return new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })
 }
@@ -164,7 +170,7 @@ function ReplyNode({ post, fullPostMap, resolveContact, setReplyTarget }) {
             Reply
           </button>
         </div>
-        <div style={{ paddingLeft: author.imageUrl ? 'calc(1em + 0.4em + 18px + 0.4em)' : 'calc(1em + 0.4em)', whiteSpace: 'pre-wrap' }}>
+        <div style={{ paddingLeft: author.imageUrl ? 'calc(0.75em + 0.4em + 18px + 0.4em)' : 'calc(0.75em + 0.4em)', whiteSpace: 'pre-wrap' }}>
           {post.text}
         </div>
       </div>
@@ -183,9 +189,10 @@ function ReplyNode({ post, fullPostMap, resolveContact, setReplyTarget }) {
   )
 }
 
-function ConversationRow({ post: headpost, resolveContact, fullPostMap }) {
+function ConversationRow({ post: headpost, resolveContact, fullPostMap, onUnsubscribe }) {
   const [expanded, setExpanded] = useState(false)
   const [replyTarget, setReplyTarget] = useState(null)
+  const [showUnsub, setShowUnsub] = useState(false)
 
   const author = resolveContact(headpost.author)
   const subscribers = (headpost.subscribers || [])
@@ -247,14 +254,22 @@ function ConversationRow({ post: headpost, resolveContact, fullPostMap }) {
         >
           {expanded ? '▼' : '▶'}
         </button>
-        <div style={{ fontSize: '1.05em', whiteSpace: 'pre-wrap' }}>{headpost.text}</div>
-        <span style={{ opacity: 0.45, fontSize: '0.85em', flexShrink: 0 }}>{hhmm(headpost.timestamp)}</span>
-        <button
-          onClick={() => setReplyTarget(headpost)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.78em', color: '#1a73e8', padding: '0.2em 0.4em', flexShrink: 0 }}
-        >
-          Reply
-        </button>
+        <div style={{ fontSize: '1.05em' }}>
+          <span style={{ whiteSpace: 'pre-wrap' }}>{headpost.text}</span>
+          <span style={{ paddingLeft: '1em', opacity: 0.45, fontSize: '0.85em' }}>{hhmm(headpost.timestamp)}</span>
+          <button
+            onClick={() => setReplyTarget(headpost)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.78em', color: '#1a73e8', padding: '0.2em 0.4em' }}
+          >
+            Reply
+          </button>
+          <button
+            onClick={() => setShowUnsub(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '0.78em', color: '#c00', padding: '0.2em 0.4em' }}
+          >
+            Unsubscribe
+          </button>
+        </div>
       </div>
 
       {/* Expanded: replies tree (recursive) */}
@@ -282,6 +297,13 @@ function ConversationRow({ post: headpost, resolveContact, fullPostMap }) {
           resolveContact={resolveContact}
           onConfirm={() => setReplyTarget(null)}
           onClose={() => setReplyTarget(null)}
+        />
+      )}
+
+      {showUnsub && (
+        <UnsubscribeConfirmDialog
+          onConfirm={() => { setShowUnsub(false); onUnsubscribe(headpost) }}
+          onClose={() => setShowUnsub(false)}
         />
       )}
     </li>
@@ -317,7 +339,7 @@ function TabConversations() {
               const headpost = fullPostMap.get(uuid)
               if (!headpost) return null
               return (
-                <ConversationRow key={uuid} post={headpost} resolveContact={resolveContact} fullPostMap={fullPostMap} currentUser={currentUser} />
+                <ConversationRow key={uuid} post={headpost} resolveContact={resolveContact} fullPostMap={fullPostMap} currentUser={currentUser} onUnsubscribe={uiUnsubscribe} />
               )
             })}
           </ul>
