@@ -5,21 +5,7 @@ export const featureCode = 'conversation'
 const actionCodeHead = 'headpost'
 const actionCodePost = 'post'
 
-/*  Packet structure for conversation actions:
-    {
-      sourceEmail,
-      targetEmail,
-      appCode: "Social-via-Email",
-      featureCode: "conversation",
-      actionCode: "headpost" / "post",
-      post: Post,
-    }
-
-    Headpost: headPostUuid: null, parentPostUuid: null, subscribers: [all]
-    Reply:    headPostUuid: <root uuid>, parentPostUuid: <direct parent uuid>, subscribers: []
-*/
-
-export function uiAddConversation(message) {
+export function uiAddHeadPost(message) {
   const { session, contacts, conversations, setConversations, fullPostMap, setFullPostMap } = useAppStore.getState()
 
   const currentUser = session.currentUser
@@ -30,13 +16,13 @@ export function uiAddConversation(message) {
   setFullPostMap(new Map(fullPostMap))
   setConversations([...conversations, headpost.uuid])
 
-  contacts.forEach((f) => {
-    const packet = makePacket(currentUser.email, f.email, featureCode, actionCodeHead, { post: headpost })
+  contacts.forEach((c) => {
+    const packet = makePacket(currentUser.email, c.email, featureCode, actionCodeHead, { post: headpost })
     sendEmail(packet)
   })
 }
 
-export function uiAddConversationPost(message, headpost, parentPost) {
+export function uiAddPost(message, headpost, parentPost) {
   const { session, fullPostMap, setFullPostMap } = useAppStore.getState()
   const currentUser = session.currentUser
 

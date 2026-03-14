@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { uiAddConversation, uiAddConversationPost } from '../actions/conversationActions'
+import { uiAddHeadPost, uiAddPost } from '../actions/conversationActions'
 
 function AddConversationDialog({ contacts, onClose }) {
   const [message, setMessage] = useState('')
@@ -13,7 +13,7 @@ function AddConversationDialog({ contacts, onClose }) {
       return
     }
     setError('')
-    uiAddConversation(message.trim())
+    uiAddHeadPost(message.trim())
     setSuccess(true)
   }
 
@@ -67,7 +67,7 @@ function ReplyPopup({ headpost, replyTarget, resolveContact, onConfirm, onClose 
       setError('Please type a message.')
       return
     }
-    uiAddConversationPost(message.trim(), headpost, replyTarget)
+    uiAddPost(message.trim(), headpost, replyTarget)
     onConfirm()
   }
 

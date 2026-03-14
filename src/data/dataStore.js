@@ -23,9 +23,9 @@ export function makePost(author, text, overrides = {}) {
   return {
     uuid: crypto.randomUUID(),
     timestamp: Date.now(),
-    author, // email
-    text,   // text content
-    subscribers: [],  // emails
+    author,
+    text,
+    subscribers: [],
     headPostUuid: null,
     childPostUuids: [],
     parentPostUuid: null,

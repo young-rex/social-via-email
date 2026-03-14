@@ -5,17 +5,6 @@ export const featureCode = 'contact'
 const actionCodeRequest = 'friend?'
 const actionCodeAccept = 'friend!'
 
-/*  Packet structure for contact actions:
-    {
-      sourceEmail,
-      targetEmail,
-      appCode: "Social-via-Email",
-      featureCode: "contact",
-      actionCode: "contact?" / "contact!",
-      contact: Person,
-    }
-*/
-
 export function uiAddContact(email) {
   const { session } = useAppStore.getState()
   const currentUser = session.currentUser
@@ -34,7 +23,7 @@ export function processPacket(packet) {
   if (packet.sourceEmail !== packet.contact.email) return
 
   const { contacts, setContacts } = useAppStore.getState()
-  if (contacts.some((f) => f.email === packet.contact.email)) return
+  if (contacts.some((c) => c.email === packet.contact.email)) return
 
   if (packet.actionCode === actionCodeAccept) {
 

@@ -8,7 +8,7 @@ function formatTime(ms) {
 
 function TabLogs() {
   const clearLogs = useAppStore((s) => s.clearLogs)
-  const logs        = useAppStore((s) => s.logs)
+  const logs = useAppStore((s) => s.logs)
 
   useEffect(() => {
     const run = async () => {

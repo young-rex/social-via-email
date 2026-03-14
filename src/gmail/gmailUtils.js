@@ -76,24 +76,22 @@ export async function loadEmailToState() {
 
 export async function saveStateToEmail() {
   const { session, setSession, contacts, chats, conversations, fullPostMap, addLog } = useAppStore.getState()
-  addLog('saveStateToEmail: started')
   if (!session?.isDataDirty) {
-    addLog('saveStateToEmail: no changes, skipping')
-    return
+    const proceed = window.confirm('No changes detected. Save anyway?')
+    if (!proceed) return
   }
+  addLog('saveStateToEmail: started')
   try {
     const { gmailDataLabelId } = session
     if (!gmailDataLabelId) throw new Error(`label "${dataLabel}" not initialized`)
 
     const bodyJsonStr = JSON.stringify({ contacts, chats, conversations, fullPostMap: [...fullPostMap.entries()] })
 
-    // Find existing memory-dump emails before inserting
     const query = encodeURIComponent(`label:${dataLabel} subject:memory-dump`)
     const searchRes = await gmailFetch('saveStateToEmail', `${GMAIL_API}/messages?q=${query}`)
     const { messages: oldMessages } = await searchRes.json()
 
-    // Build and insert new RFC 2822 message
-    const mime = [`From: memory-dump@localhost`, `To: memory-dump@localhost`, 'Subject: memory-dump', 'Content-Type: text/plain; charset=UTF-8', '', bodyJsonStr].join('\r\n')
+    const mime = [`From: sve@localhost`, `To: sve@localhost`, 'Subject: memory-dump', 'Content-Type: text/plain; charset=UTF-8', '', bodyJsonStr].join('\r\n')
     await gmailFetch('saveStateToEmail', `${GMAIL_API}/messages`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -101,7 +99,6 @@ export async function saveStateToEmail() {
     })
     addLog('saveStateToEmail: created "memory-dump" email')
 
-    // Trash old memory-dump emails
     if (oldMessages && oldMessages.length > 0) {
       for (const msg of oldMessages) {
         await gmailFetch('saveStateToEmail', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
@@ -130,7 +127,6 @@ export async function scanIncomingEmails() {
     } else {
       addLog(`scanIncomingEmails: found ${messages.length} email(s)`)
 
-      // Fetch all messages first so we can sort by internalDate (oldest first)
       const fetched = []
       for (const { id } of messages) {
         const msgResp = await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${id}?format=full`)
@@ -141,11 +137,9 @@ export async function scanIncomingEmails() {
       for (const msg of fetched) {
         const bodyJsonStr = extractBody(msg.payload)
 
-        // 2/3: Process email
         const packet = JSON.parse(bodyJsonStr)
         processPacket(packet)
 
-        // 3/3: Trash email
         await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
         addLog('scanIncomingEmails: trashed email')
       }

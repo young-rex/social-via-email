@@ -5,43 +5,20 @@ export const featureCode = 'chat'
 const actionCodeHead = 'headpost'
 const actionCodePost = 'post'
 
-/*  Packet structure for friend actions:
-    {
-      sourceEmail,
-      targetEmail,
-      appCode: "Social-via-Email",
-      featureCode: "chat",
-      actionCode: "headpost" / "post",
-      post: Post,
-    }
-
-    {
-      uuid: crypto.randomUUID(),
-      timestamp: Date.now(),
-      author, // email
-      text,   // text content
-      subscribers: [],  // emails
-      headPostUuid: null,
-      childPostUuids: [],
-      parentPostUuid: null,
-      ...overrides,
-    }
-*/
-
-export function uiAddChat(message, selectedFriends) {
+export function uiAddHeadPost(message, selectedContacts) {
   const { session, chats, setChats, fullPostMap, setFullPostMap } = useAppStore.getState()
 
   const currentUser = session.currentUser
-  const subscribers = [currentUser.email, ...selectedFriends.map((f) => f.email)]
+  const subscribers = [currentUser.email, ...selectedContacts.map((c) => c.email)]
   const headpost = makePost(currentUser.email, message, { subscribers })
 
   fullPostMap.set(headpost.uuid, headpost)
   setFullPostMap(new Map(fullPostMap))
   setChats([...chats, headpost.uuid])
 
-  selectedFriends
-    .forEach((f) => {
-      const packet = makePacket(currentUser.email, f.email, featureCode, actionCodeHead, { post: headpost })
+  selectedContacts
+    .forEach((c) => {
+      const packet = makePacket(currentUser.email, c.email, featureCode, actionCodeHead, { post: headpost })
       sendEmail(packet)
     })
 }

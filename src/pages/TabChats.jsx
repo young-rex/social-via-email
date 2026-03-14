@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { uiAddChat, uiAddPost } from '../actions/chatActions'
+import { uiAddHeadPost, uiAddPost } from '../actions/chatActions'
 
 function NoFriendsDialog({ onClose }) {
   return (
@@ -35,9 +35,22 @@ function AddChatDialog({ contacts, onClose }) {
       setError('Please type a message.')
       return
     }
-    setError('')
 
-    uiAddChat(message.trim(), selectedContacts)
+    const { chats, fullPostMap, session } = useAppStore.getState()
+    const newGroup = new Set([session.currentUser.email, ...selectedContacts.map((c) => c.email)])
+    const hasActiveChat = chats.some((uuid) => {
+      const post = fullPostMap.get(uuid)
+      if (!post) return false
+      const existing = new Set(post.subscribers)
+      return existing.size === newGroup.size && [...newGroup].every((e) => existing.has(e))
+    })
+    if (hasActiveChat) {
+      setError('You have an active chat with them.')
+      return
+    }
+
+    setError('')
+    uiAddHeadPost(message.trim(), selectedContacts)
 
     setSuccess(true)
   }
