@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { navigate } from './router'
 import { useAppStore } from '../data/dataStore'
 import { scanIncomingEmails, saveStateToEmail } from '../gmail/gmailUtils'
@@ -7,6 +7,17 @@ import TabChats from './TabChats'
 import TabConversations from './TabConversations'
 import TabLogs from './TabLogs'
 import './SocialPage.css'
+
+function SessionExpiryDialog({ onClose }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
+      <div style={{ background: '#fff', color: '#111', padding: '1.5em 2em', borderRadius: '8px', minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
+        <p style={{ margin: 0, fontWeight: 600 }}>Your 1-hour Gmail session is expiring soon.</p>
+        <button onClick={onClose} style={{ alignSelf: 'flex-end' }}>OK</button>
+      </div>
+    </div>
+  )
+}
 
 const TABS = [
   { id: 'contacts',      label: 'Contacts' },
@@ -23,6 +34,12 @@ function formatTs(ts) {
 function SocialPage() {
   const { session } = useAppStore()
   const [activeTab, setActiveTab] = useState('logs')
+  const [showExpiryWarning, setShowExpiryWarning] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowExpiryWarning(true), 55 * 60 * 1000)
+    return () => clearTimeout(timer)
+  }, [])
 
   function handleSignOut() {
     useAppStore.getState().resetStore()
@@ -85,6 +102,9 @@ function SocialPage() {
         <div style={{ display: activeTab === 'conversations' ? 'contents' : 'none' }}><TabConversations /></div>
         <div style={{ display: activeTab === 'logs'          ? 'contents' : 'none' }}><TabLogs /></div>
       </div>
+      {showExpiryWarning && (
+        <SessionExpiryDialog onClose={() => setShowExpiryWarning(false)} />
+      )}
     </div>
   )
 }
