@@ -152,6 +152,31 @@ export async function scanIncomingEmails() {
   } finally {
     addLog('scanIncomingEmails: done')
   }
+
+  deleteSentEmails()
+}
+
+async function deleteSentEmails() {
+  const { addLog } = useAppStore.getState()
+  addLog('deleteSentEmails: started')
+  try {
+    const query = encodeURIComponent(`in:sent subject:"${emailSubject}"`)
+    const searchResp = await gmailFetch('deleteSentEmails', `${GMAIL_API}/messages?q=${query}`)
+    const { messages } = await searchResp.json()
+
+    if (!messages || messages.length === 0) {
+      addLog('deleteSentEmails: no sent emails found')
+    } else {
+      for (const msg of messages) {
+        await gmailFetch('deleteSentEmails', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
+      }
+      addLog(`deleteSentEmails: trashed ${messages.length} sent email(s)`)
+    }
+  } catch (e) {
+    addLog(`deleteSentEmails: error — ${e.message}`)
+  } finally {
+    addLog('deleteSentEmails: done')
+  }
 }
 
 export async function sendEmail(packet) {
