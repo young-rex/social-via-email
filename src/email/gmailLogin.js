@@ -39,6 +39,7 @@ export function handleSignIn(e) {
           currentUser: makeContact(data.email, data.name || data.email.split('@')[0], data.picture || null),
           oauthToken: accessToken,
           lastLoginAt: Date.now(),
+          emailVendor: 'gmail',
         }))
         navigate('/social')
       })

@@ -1,5 +1,5 @@
 import { useAppStore, makePacket } from '../data/dataStore.js'
-import { sendEmail } from '../gmail/gmailUtils.js'
+import { sendEmail } from '../email/emailUtils'
 
 export const featureCode = 'contact'
 const actionCodeRequest = 'friend?'

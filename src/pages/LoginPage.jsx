@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import SocialPage from './SocialPage'
 import { navigate, getPath } from './router'
 import { useAppStore } from '../data/dataStore'
-import { handleSignIn } from '../gmail/gmailLogin'
+import { handleGmailSignIn, handleOutlookSignIn } from '../email/emailLogin'
 import './LoginPage.css'
 
 function LoginPage() {
@@ -38,10 +38,18 @@ function LoginPage() {
           <a
             href={`${import.meta.env.BASE_URL}social`}
             className="login-button"
-            onClick={handleSignIn}
+            onClick={handleGmailSignIn}
           >
             <img src={`${import.meta.env.BASE_URL}gmail.png`} alt="Gmail icon" className="gmail-icon" />
-            Sign in to your Gmail
+            Sign in to Gmail
+          </a>
+          <a
+            href={`${import.meta.env.BASE_URL}social`}
+            className="login-button"
+            onClick={handleOutlookSignIn}
+          >
+            <img src={`${import.meta.env.BASE_URL}outlook.png`} alt="Outlook icon" className="gmail-icon" />
+            Sign in to Outlook
           </a>
         </section>
 

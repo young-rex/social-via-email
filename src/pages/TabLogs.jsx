@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { initializeLabels, loadEmailToState, scanIncomingEmails } from '../gmail/gmailUtils'
+import { initializeLabels, loadEmailToState, scanIncomingEmails } from '../email/emailUtils'
 
 function formatTime(ms) {
   return new Date(ms).toLocaleTimeString('en-GB')

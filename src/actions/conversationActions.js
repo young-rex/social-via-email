@@ -1,5 +1,5 @@
 import { useAppStore, makePacket, makePost } from '../data/dataStore.js'
-import { sendEmail } from '../gmail/gmailUtils.js'
+import { sendEmail } from '../email/emailUtils'
 
 export const featureCode = 'conversation'
 const actionCodeHead = 'headpost'

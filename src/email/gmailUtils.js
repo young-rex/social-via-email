@@ -118,7 +118,7 @@ export async function scanIncomingEmails() {
   const { addLog } = useAppStore.getState()
   addLog('scanIncomingEmails: started')
   try {
-    const query = encodeURIComponent(`subject:"${emailSubject}" (label:inbox OR label:${inboxLabel})`)
+    const query = encodeURIComponent(`subject:"${emailSubject}" (label:inbox OR label:${inboxLabel} OR in:spam)`)
     const searchResp = await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages?q=${query}`)
     const { messages } = await searchResp.json()
 

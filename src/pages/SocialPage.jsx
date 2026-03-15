@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react'
 import { navigate } from './router'
 import { useAppStore } from '../data/dataStore'
-import { scanIncomingEmails, saveStateToEmail } from '../gmail/gmailUtils'
+import { scanIncomingEmails, saveStateToEmail } from '../email/emailUtils'
 import TabContacts from './TabContacts'
 import TabChats from './TabChats'
 import TabConversations from './TabConversations'
 import TabLogs from './TabLogs'
 import './SocialPage.css'
 
-function SessionExpiryDialog({ onClose }) {
+function SessionExpiryDialog({ onClose, vendorName }) {
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
       <div style={{ background: '#fff', color: '#111', padding: '1.5em 2em', borderRadius: '8px', minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
-        <p style={{ margin: 0, fontWeight: 600 }}>Your 1-hour Gmail session is expiring soon.</p>
+        <p style={{ margin: 0, fontWeight: 600 }}>Your 1-hour {vendorName} session is expiring soon.</p>
         <button onClick={onClose} style={{ alignSelf: 'flex-end' }}>OK</button>
       </div>
     </div>
@@ -103,7 +103,10 @@ function SocialPage() {
         <div style={{ display: activeTab === 'logs'          ? 'contents' : 'none' }}><TabLogs /></div>
       </div>
       {showExpiryWarning && (
-        <SessionExpiryDialog onClose={() => setShowExpiryWarning(false)} />
+        <SessionExpiryDialog
+          onClose={() => setShowExpiryWarning(false)}
+          vendorName={session.emailVendor === 'outlook' ? 'Outlook' : 'Gmail'}
+        />
       )}
     </div>
   )
