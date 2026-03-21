@@ -1,7 +1,7 @@
-import { useAppStore, makePacket, makePost } from '../data/dataStore.js'
+import { useAppStore, makeEnvelope, makePost } from '../data/dataStore.js'
 import { sendEmail } from '../email/emailUtils'
 
-export const featureCode = 'conversation'
+export const feature = 'conversation'
 const actionCodeHead = 'headpost'
 const actionCodePost = 'post'
 const actionCodeUnsub = 'unsubscribe'
@@ -18,8 +18,8 @@ export function uiAddHeadPost(message) {
   setConversations([...conversations, headpost.uuid])
 
   contacts.forEach((c) => {
-    const packet = makePacket(currentUser.email, c.email, featureCode, actionCodeHead, { post: headpost })
-    sendEmail(packet)
+    const envelope = makeEnvelope(`${c.email}#${feature}`, `${currentUser.email}#${feature}`, actionCodeHead, { post: headpost })
+    sendEmail(envelope)
   })
 }
 
@@ -40,8 +40,8 @@ export function uiAddPost(message, headpost, parentPost) {
   headpost.subscribers
     .filter((email) => email !== currentUser.email)
     .forEach((email) => {
-      const packet = makePacket(currentUser.email, email, featureCode, actionCodePost, { post: childpost })
-      sendEmail(packet)
+      const envelope = makeEnvelope(`${email}#${feature}`, `${currentUser.email}#${feature}`, actionCodePost, { post: childpost })
+      sendEmail(envelope)
     })
 }
 
@@ -66,38 +66,40 @@ export function uiUnsubscribe(headpost) {
   headpost.subscribers
     .filter((email) => email !== currentUser.email)
     .forEach((email) => {
-      const packet = makePacket(currentUser.email, email, featureCode, actionCodeUnsub, { headpostuuid: headpost.uuid, unsubscriber: currentUser.email })
-      sendEmail(packet)
+      const envelope = makeEnvelope(`${email}#${feature}`, `${currentUser.email}#${feature}`, actionCodeUnsub, { headpostuuid: headpost.uuid, unsubscriber: currentUser.email })
+      sendEmail(envelope)
     })
 }
 
-export function processPacket(packet) {
+export function processEnvelope(envelope) {
   const { addLog } = useAppStore.getState()
-  addLog(`conversationActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
+  const [, targetFeature] = envelope.target.split('#')
+  const [replytoEmail] = envelope.replyto.split('#')
+  addLog(`conversationActions: processing envelope from ${replytoEmail} for ${targetFeature}/${envelope.args.action}`)
 
   const { conversations, setConversations, fullPostMap, setFullPostMap } = useAppStore.getState()
 
-  if (packet.actionCode === actionCodeUnsub) {
+  if (envelope.args.action === actionCodeUnsub) {
 
-    const headpost = fullPostMap.get(packet.headpostuuid)
+    const headpost = fullPostMap.get(envelope.args.headpostuuid)
     if (!headpost) return
 
-    headpost.subscribers = headpost.subscribers.filter((email) => email !== packet.unsubscriber)
+    headpost.subscribers = headpost.subscribers.filter((email) => email !== envelope.args.unsubscriber)
     setFullPostMap(new Map(fullPostMap))
     return
 
   }
 
-  const post = packet.post
+  const post = envelope.args.post
   if (fullPostMap.has(post.uuid)) return
 
-  if (packet.actionCode === actionCodeHead) {
+  if (envelope.args.action === actionCodeHead) {
 
     fullPostMap.set(post.uuid, post)
     setFullPostMap(new Map(fullPostMap))
     setConversations([...conversations, post.uuid])
 
-  } else if (packet.actionCode === actionCodePost) {
+  } else if (envelope.args.action === actionCodePost) {
 
     const parentPost = fullPostMap.get(post.parentPostUuid)
     if (!parentPost) return

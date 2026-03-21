@@ -1,13 +1,13 @@
 import { create } from 'zustand'
 
-export function makePacket(sourceEmail, targetEmail, featureCode, actionCode, overrides = {}) {
+export function makeEnvelope(target, replyto, action, overrides = {}) {
   return {
-    sourceEmail,
-    targetEmail,
-    appCode: "Social-via-Email",
-    featureCode,
-    actionCode,
-    ...overrides,
+    target,
+    replyto,
+    args: {
+      action,
+      ...overrides,
+    }
   }
 }
 

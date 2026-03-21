@@ -1,5 +1,5 @@
 import { useAppStore } from '../data/dataStore'
-import { processPacket } from '../actions/actionCenter'
+import { processEnvelope } from '../actions/actionCenter'
 
 const GRAPH_API = 'https://graph.microsoft.com/v1.0/me'
 const dataFolderName = 'social-via-email-data'
@@ -175,8 +175,8 @@ export async function scanIncomingEmails() {
       for (const msg of fetched) {
         const bodyJsonStr = msg.body.content.replace(/\r\n|\r|\n/g, ' ')
 
-        const packet = JSON.parse(bodyJsonStr)
-        processPacket(packet)
+        const envelope = JSON.parse(bodyJsonStr)
+        processEnvelope(envelope)
 
         await graphFetch('scanIncomingEmails', `${GRAPH_API}/messages/${msg.id}/move`, {
           method: 'POST',
@@ -212,7 +212,7 @@ async function deleteSentEmails() {
     } while (nextUrl)
 
     if (sentMessages.length === 0) {
-      addLog('deleteSentEmails: no sent emails found')
+      addLog('deleteSentEmails: sent emails not found')
     } else {
       for (const msg of sentMessages) {
         await graphFetch('deleteSentEmails', `${GRAPH_API}/messages/${msg.id}/move`, {
@@ -230,10 +230,11 @@ async function deleteSentEmails() {
   }
 }
 
-export async function sendEmail(packet) {
+export async function sendEmail(envelope) {
   const { addLog, session } = useAppStore.getState()
+  const [targetEmail, targetFeature] = envelope.target.split('#')
   addLog('sendEmail: started')
-  addLog(`sendEmail: sending to ${packet.targetEmail} for ${packet.featureCode}/${packet.actionCode}`)
+  addLog(`sendEmail: sending to ${targetEmail} for ${targetFeature}/${envelope.args.action}`)
   try {
     const sendResp = await graphFetch('sendEmail', `${GRAPH_API}/sendMail`, {
       method: 'POST',
@@ -241,8 +242,8 @@ export async function sendEmail(packet) {
       body: JSON.stringify({
         message: {
           subject: emailSubject,
-          body: { contentType: 'Text', content: JSON.stringify(packet) },
-          toRecipients: [{ emailAddress: { address: packet.targetEmail } }],
+          body: { contentType: 'Text', content: JSON.stringify(envelope) },
+          toRecipients: [{ emailAddress: { address: targetEmail } }],
           from: { emailAddress: { address: session.currentUser.email } },
         },
         saveToSentItems: true,

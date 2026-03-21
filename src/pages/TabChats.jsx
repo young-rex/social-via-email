@@ -249,7 +249,7 @@ function ChatRow({ post: headpost, resolveContact, fullPostMap, currentUser, onU
               }}
               style={{ alignSelf: 'flex-end', padding: '0.2em 0.9em' }}
             >
-              Confirm
+              Send
             </button>
           </div>
         </div>

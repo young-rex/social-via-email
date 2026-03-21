@@ -1,7 +1,7 @@
-import { useAppStore, makePacket } from '../data/dataStore.js'
+import { useAppStore, makeEnvelope } from '../data/dataStore.js'
 import { sendEmail } from '../email/emailUtils'
 
-export const featureCode = 'contact'
+export const feature = 'contact'
 const actionCodeRequest = 'friend?'
 const actionCodeAccept = 'friend!'
 
@@ -9,36 +9,38 @@ export function uiAddContact(email) {
   const { session } = useAppStore.getState()
   const currentUser = session.currentUser
 
-  const packet = makePacket(currentUser.email, email, featureCode, actionCodeRequest, {
+  const envelope = makeEnvelope(`${email}#${feature}`, `${currentUser.email}#${feature}`, actionCodeRequest, {
     contact: currentUser,
   })
 
-  sendEmail(packet)
+  sendEmail(envelope)
 }
 
-export function processPacket(packet) {
+export function processEnvelope(envelope) {
   const { addLog } = useAppStore.getState()
-  addLog(`contactActions: processing packet from ${packet.sourceEmail} for ${packet.featureCode}/${packet.actionCode}`)
+  const [, targetFeature] = envelope.target.split('#')
+  const [replytoEmail] = envelope.replyto.split('#')
+  addLog(`contactActions: processing envelope from ${replytoEmail} for ${targetFeature}/${envelope.args.action}`)
 
-  if (packet.sourceEmail !== packet.contact.email) return
+  if (replytoEmail !== envelope.args.contact.email) return
 
   const { contacts, setContacts } = useAppStore.getState()
-  if (contacts.some((c) => c.email === packet.contact.email)) return
+  if (contacts.some((c) => c.email === envelope.args.contact.email)) return
 
-  if (packet.actionCode === actionCodeAccept) {
+  if (envelope.args.action === actionCodeAccept) {
 
-    setContacts([...contacts, packet.contact])
+    setContacts([...contacts, envelope.args.contact])
 
-  } else if (packet.actionCode === actionCodeRequest) {
+  } else if (envelope.args.action === actionCodeRequest) {
 
-    setContacts([...contacts, packet.contact])
+    setContacts([...contacts, envelope.args.contact])
 
     const { session } = useAppStore.getState()
     const currentUser = session.currentUser
-    const respPacket = makePacket(currentUser.email, packet.contact.email, featureCode, actionCodeAccept, {
+    const respEnvelope = makeEnvelope(`${envelope.args.contact.email}#${feature}`, `${currentUser.email}#${feature}`, actionCodeAccept, {
       contact: currentUser,
     })
 
-    sendEmail(respPacket)
+    sendEmail(respEnvelope)
   }
 }

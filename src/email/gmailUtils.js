@@ -1,5 +1,5 @@
 import { useAppStore } from '../data/dataStore'
-import { processPacket } from '../actions/actionCenter'
+import { processEnvelope } from '../actions/actionCenter'
 
 const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
 const dataLabel = 'social-via-email-data'
@@ -137,8 +137,8 @@ export async function scanIncomingEmails() {
       for (const msg of fetched) {
         const bodyJsonStr = extractBody(msg.payload)
 
-        const packet = JSON.parse(bodyJsonStr)
-        processPacket(packet)
+        const envelope = JSON.parse(bodyJsonStr)
+        processEnvelope(envelope)
 
         await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
         addLog('scanIncomingEmails: trashed email')
@@ -165,7 +165,7 @@ async function deleteSentEmails() {
     const { messages } = await searchResp.json()
 
     if (!messages || messages.length === 0) {
-      addLog('deleteSentEmails: no sent emails found')
+      addLog('deleteSentEmails: sent emails not found')
     } else {
       for (const msg of messages) {
         await gmailFetch('deleteSentEmails', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
@@ -179,18 +179,20 @@ async function deleteSentEmails() {
   }
 }
 
-export async function sendEmail(packet) {
+export async function sendEmail(envelope) {
   const { addLog } = useAppStore.getState()
+  const [targetEmail, targetFeature] = envelope.target.split('#')
+  const [replytoEmail] = envelope.replyto.split('#')
   addLog('sendEmail: started')
-  addLog(`sendEmail: sending to ${packet.targetEmail} for ${packet.featureCode}/${packet.actionCode}`)
+  addLog(`sendEmail: sending to ${targetEmail} for ${targetFeature}/${envelope.args.action}`)
   try {
     const mime = [
-      `From: ${packet.sourceEmail}`,
-      `To: ${packet.targetEmail}`,
+      `From: ${replytoEmail}`,
+      `To: ${targetEmail}`,
       `Subject: ${emailSubject}`,
       'Content-Type: text/plain; charset=UTF-8',
       '',
-      JSON.stringify(packet),
+      JSON.stringify(envelope),
     ].join('\r\n')
 
     const sendResp = await gmailFetch('sendEmail', `${GMAIL_API}/messages/send`, {
