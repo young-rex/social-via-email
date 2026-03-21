@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { uiAddHeadPost, uiAddPost, uiUnsubscribe } from '../actions/conversationActions'
+import { uiAddHeadPost, uiAddPost, uiUnsubscribe } from '../features/conversationFeature'
 
 function AddConversationDialog({ contacts, onClose }) {
   const [message, setMessage] = useState('')

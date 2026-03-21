@@ -1,7 +1,7 @@
 import { useAppStore } from '../data/dataStore'
-import * as contactAction from './contactActions'
-import * as chatAction from './chatActions'
-import * as conversationAction from './conversationActions'
+import * as contactAction from './contactFeature'
+import * as chatAction from './chatFeature'
+import * as conversationAction from './conversationFeature'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

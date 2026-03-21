@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { uiAddContact } from '../actions/contactActions'
+import { uiAddContact } from '../features/contactFeature'
 
 function AddContactDialog({ onClose }) {
   const contacts = useAppStore((s) => s.contacts)

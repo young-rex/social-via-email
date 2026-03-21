@@ -1,9 +1,10 @@
 import { useAppStore } from '../data/dataStore'
-import { processEnvelope } from '../actions/actionCenter'
+import { processEnvelope } from '../features/featureCenter'
 
 const GRAPH_API = 'https://graph.microsoft.com/v1.0/me'
-const dataFolderName = 'social-via-email-data'
-const inboxFolderName = 'social-via-email-inbox'
+const dataFolder = 'social-via-email-data'
+const inboxFolder = 'social-via-email-inbox'
+const aiFolder = 'social-via-email-ai'
 const emailSubject = 'Lemitar::Social-via-Email'
 
 export async function initializeLabels() {
@@ -12,10 +13,10 @@ export async function initializeLabels() {
   try {
     const listResp = await graphFetch('initializeLabels', `${GRAPH_API}/mailFolders?$top=100`)
     const { value: folders } = await listResp.json()
-    for (const folderName of [dataFolderName, inboxFolderName]) {
+    for (const folderName of [dataFolder, inboxFolder, aiFolder]) {
       const existingFolder = folders.find((f) => f.displayName === folderName)
       if (existingFolder) {
-        if (folderName === dataFolderName) {
+        if (folderName === dataFolder) {
           setSession({ ...session, outlookDataFolderId: existingFolder.id })
         }
         addLog(`initializeLabels: "${folderName}" folder found`)
@@ -27,7 +28,7 @@ export async function initializeLabels() {
         })
         if (!createResp.ok) throw new Error(`failed to create "${folderName}" folder`)
         const newFolder = await createResp.json()
-        if (folderName === dataFolderName) {
+        if (folderName === dataFolder) {
           setSession({ ...session, outlookDataFolderId: newFolder.id })
         }
         addLog(`initializeLabels: "${folderName}" folder created`)
@@ -91,7 +92,7 @@ export async function saveStateToEmail() {
   addLog('saveStateToEmail: started')
   try {
     const { outlookDataFolderId } = session
-    if (!outlookDataFolderId) throw new Error(`folder "${dataFolderName}" not initialized`)
+    if (!outlookDataFolderId) throw new Error(`folder "${dataFolder}" not initialized`)
 
     const bodyJsonStr = JSON.stringify({
       contacts,

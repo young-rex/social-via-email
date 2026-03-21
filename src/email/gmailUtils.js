@@ -1,9 +1,10 @@
 import { useAppStore } from '../data/dataStore'
-import { processEnvelope } from '../actions/actionCenter'
+import { processEnvelope } from '../features/featureCenter'
 
 const GMAIL_API = 'https://gmail.googleapis.com/gmail/v1/users/me'
 const dataLabel = 'social-via-email-data'
 const inboxLabel = 'social-via-email-inbox'
+const aiLabel = 'social-via-email-ai'
 const emailSubject = 'Lemitar::Social-via-Email'
 
 export async function initializeLabels() {
@@ -12,7 +13,7 @@ export async function initializeLabels() {
   try {
     const listResp = await gmailFetch('initializeLabels', `${GMAIL_API}/labels`)
     const { labels } = await listResp.json()
-    for (const labelName of [dataLabel, inboxLabel]) {
+    for (const labelName of [dataLabel, inboxLabel, aiLabel]) {
       const existingLabel = labels.find((l) => l.name === labelName)
       if (existingLabel) {
         if (labelName === dataLabel) {

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAppStore } from '../data/dataStore'
-import { uiAddHeadPost, uiAddPost, uiUnsubscribe } from '../actions/chatActions'
+import { uiAddHeadPost, uiAddPost, uiUnsubscribe } from '../features/chatFeature'
 
 function NoFriendsDialog({ onClose }) {
   return (
