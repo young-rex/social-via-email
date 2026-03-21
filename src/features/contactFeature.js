@@ -2,14 +2,14 @@ import { useAppStore, makeEnvelope } from '../data/dataStore.js'
 import { sendEmail } from '../email/emailUtils'
 
 export const feature = 'contact'
-const actionCodeRequest = 'friend?'
-const actionCodeAccept = 'friend!'
+const actionRequest = 'friend?'
+const actionAccept = 'friend!'
 
 export function uiAddContact(email) {
   const { session } = useAppStore.getState()
   const currentUser = session.currentUser
 
-  const envelope = makeEnvelope(`${email}#${feature}`, `${currentUser.email}#${feature}`, actionCodeRequest, {
+  const envelope = makeEnvelope(`${email}#${feature}`, `${currentUser.email}#${feature}`, actionRequest, {
     contact: currentUser,
   })
 
@@ -27,17 +27,17 @@ export function processEnvelope(envelope) {
   const { contacts, setContacts } = useAppStore.getState()
   if (contacts.some((c) => c.email === envelope.args.contact.email)) return
 
-  if (envelope.args.action === actionCodeAccept) {
+  if (envelope.args.action === actionAccept) {
 
     setContacts([...contacts, envelope.args.contact])
 
-  } else if (envelope.args.action === actionCodeRequest) {
+  } else if (envelope.args.action === actionRequest) {
 
     setContacts([...contacts, envelope.args.contact])
 
     const { session } = useAppStore.getState()
     const currentUser = session.currentUser
-    const respEnvelope = makeEnvelope(`${envelope.args.contact.email}#${feature}`, `${currentUser.email}#${feature}`, actionCodeAccept, {
+    const respEnvelope = makeEnvelope(`${envelope.args.contact.email}#${feature}`, `${currentUser.email}#${feature}`, actionAccept, {
       contact: currentUser,
     })
 

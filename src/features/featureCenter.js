@@ -1,4 +1,5 @@
 import { useAppStore } from '../data/dataStore'
+import * as receptionistAction from './receptionistFeature'
 import * as contactAction from './contactFeature'
 import * as chatAction from './chatFeature'
 import * as conversationAction from './conversationFeature'
@@ -15,7 +16,8 @@ export function processEnvelope(envelope) {
   if (!EMAIL_REGEX.test(replytoEmail) || replytoEmail === targetEmail) return
   if (!currentEmail || currentEmail !== targetEmail) return
 
-  if (targetFeature === contactAction.feature) contactAction.processEnvelope(envelope)
+  if (targetFeature === receptionistAction.feature) receptionistAction.processEnvelope(envelope)
+  else if (targetFeature === contactAction.feature) contactAction.processEnvelope(envelope)
   else if (targetFeature === chatAction.feature) chatAction.processEnvelope(envelope)
   else if (targetFeature === conversationAction.feature) conversationAction.processEnvelope(envelope)
 }
