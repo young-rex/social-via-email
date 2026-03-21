@@ -1,11 +1,16 @@
 import { useAppStore, makeEnvelope } from '../data/dataStore.js'
 import { sendEmail } from '../email/emailUtils'
+import * as receptionistFeature from './receptionistFeature.js'
 
 export const feature = 'contact'
 const actionRequest = 'friend?'
 const actionAccept = 'friend!'
 
 export function uiAddContact(email) {
+  receptionistFeature.sendActionRequest(email, 'new-contact')
+}
+
+export function sendActionRequest(email) {
   const { session } = useAppStore.getState()
   const currentUser = session.currentUser
 
