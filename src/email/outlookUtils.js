@@ -8,7 +8,7 @@ const aiFolder = 'social-via-email-ai'
 const emailSubject = 'Lemitar::Social-via-Email'
 
 export async function initializeLabels() {
-  const { addLog, session, setSession } = useAppStore.getState()
+  const { addLog, setSession } = useAppStore.getState()
   addLog('initializeLabels: started')
   try {
     const listResp = await graphFetch('initializeLabels', `${GRAPH_API}/mailFolders?$top=100`)
@@ -17,7 +17,9 @@ export async function initializeLabels() {
       const existingFolder = folders.find((f) => f.displayName === folderName)
       if (existingFolder) {
         if (folderName === dataFolder) {
-          setSession({ ...session, outlookDataFolderId: existingFolder.id })
+          setSession({ ...useAppStore.getState().session, outlookDataFolderId: existingFolder.id })
+        } else if (folderName === aiFolder) {
+          setSession({ ...useAppStore.getState().session, outlookAiFolderId: existingFolder.id })
         }
         addLog(`initializeLabels: "${folderName}" folder found`)
       } else {
@@ -29,7 +31,9 @@ export async function initializeLabels() {
         if (!createResp.ok) throw new Error(`failed to create "${folderName}" folder`)
         const newFolder = await createResp.json()
         if (folderName === dataFolder) {
-          setSession({ ...session, outlookDataFolderId: newFolder.id })
+          setSession({ ...useAppStore.getState().session, outlookDataFolderId: newFolder.id })
+        } else if (folderName === aiFolder) {
+          setSession({ ...useAppStore.getState().session, outlookAiFolderId: newFolder.id })
         }
         addLog(`initializeLabels: "${folderName}" folder created`)
       }
@@ -152,8 +156,8 @@ export async function scanIncomingEmails() {
     }
 
     const [inbox, junk] = await Promise.all([
-      fetchAllPages(`${GRAPH_API}/messages?$search="subject:${emailSubject}"&$select=id,receivedDateTime&$top=50`),
-      fetchAllPages(`${GRAPH_API}/mailFolders/junkemail/messages?$search="subject:${emailSubject}"&$select=id,receivedDateTime&$top=50`),
+      fetchAllPages(`${GRAPH_API}/messages?$search="subject:Lemitar"&$select=id,receivedDateTime&$top=50`),
+      fetchAllPages(`${GRAPH_API}/mailFolders/junkemail/messages?$search="subject:Lemitar"&$select=id,receivedDateTime&$top=50`),
     ])
     const seen = new Set()
     const messages = [...inbox, ...junk].filter(({ id }) => seen.has(id) ? false : seen.add(id))
@@ -167,24 +171,35 @@ export async function scanIncomingEmails() {
       for (const { id } of messages) {
         const msgResp = await graphFetch(
           'scanIncomingEmails',
-          `${GRAPH_API}/messages/${id}?$select=body,receivedDateTime`
+          `${GRAPH_API}/messages/${id}?$select=body,receivedDateTime,subject`
         )
         fetched.push(await msgResp.json())
       }
       fetched.sort((a, b) => new Date(a.receivedDateTime) - new Date(b.receivedDateTime))
 
+      const { outlookAiFolderId } = useAppStore.getState().session
+
       for (const msg of fetched) {
-        const bodyJsonStr = msg.body.content.replace(/\r\n|\r|\n/g, ' ')
-
-        const envelope = JSON.parse(bodyJsonStr)
-        processEnvelope(envelope)
-
-        await graphFetch('scanIncomingEmails', `${GRAPH_API}/messages/${msg.id}/move`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ destinationId: 'deleteditems' }),
-        })
-        addLog('scanIncomingEmails: trashed email')
+        if (msg.subject === emailSubject) {
+          const bodyJsonStr = msg.body.content.replace(/\r\n|\r|\n/g, ' ')
+          const envelope = JSON.parse(bodyJsonStr)
+          processEnvelope(envelope)
+          await graphFetch('scanIncomingEmails', `${GRAPH_API}/messages/${msg.id}/move`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ destinationId: 'deleteditems' }),
+          })
+          addLog('scanIncomingEmails: trashed email')
+        } else {
+          if (outlookAiFolderId) {
+            await graphFetch('scanIncomingEmails', `${GRAPH_API}/messages/${msg.id}/move`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ destinationId: outlookAiFolderId }),
+            })
+          }
+          addLog('scanIncomingEmails: moved non-SVE email to AI folder')
+        }
       }
     }
 

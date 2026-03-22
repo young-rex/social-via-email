@@ -43,7 +43,9 @@ export function makeSession(overrides = {}) {
     isDataDirty: false,
     emailVendor: null,
     gmailDataLabelId: null,
+    gmailAiLabelId: null,
     outlookDataFolderId: null,
+    outlookAiFolderId: null,
     ...overrides,
   }
 }

@@ -8,7 +8,7 @@ const aiLabel = 'social-via-email-ai'
 const emailSubject = 'Lemitar::Social-via-Email'
 
 export async function initializeLabels() {
-  const { addLog, session, setSession } = useAppStore.getState()
+  const { addLog, setSession } = useAppStore.getState()
   addLog('initializeLabels: started')
   try {
     const listResp = await gmailFetch('initializeLabels', `${GMAIL_API}/labels`)
@@ -17,7 +17,9 @@ export async function initializeLabels() {
       const existingLabel = labels.find((l) => l.name === labelName)
       if (existingLabel) {
         if (labelName === dataLabel) {
-          setSession({ ...session, gmailDataLabelId: existingLabel.id })
+          setSession({ ...useAppStore.getState().session, gmailDataLabelId: existingLabel.id })
+        } else if (labelName === aiLabel) {
+          setSession({ ...useAppStore.getState().session, gmailAiLabelId: existingLabel.id })
         }
         addLog(`initializeLabels: "${labelName}" label found`)
       } else {
@@ -29,7 +31,9 @@ export async function initializeLabels() {
         if (!createResp.ok) throw new Error(`failed to create "${labelName}" label`)
         const newLabel = await createResp.json()
         if (labelName === dataLabel) {
-          setSession({ ...session, gmailDataLabelId: newLabel.id })
+          setSession({ ...useAppStore.getState().session, gmailDataLabelId: newLabel.id })
+        } else if (labelName === aiLabel) {
+          setSession({ ...useAppStore.getState().session, gmailAiLabelId: newLabel.id })
         }
         addLog(`initializeLabels: "${labelName}" label created`)
       }
@@ -119,7 +123,7 @@ export async function scanIncomingEmails() {
   const { addLog } = useAppStore.getState()
   addLog('scanIncomingEmails: started')
   try {
-    const query = encodeURIComponent(`subject:"${emailSubject}" (label:inbox OR label:${inboxLabel} OR in:spam)`)
+    const query = encodeURIComponent(`subject:Lemitar (label:inbox OR label:${inboxLabel} OR in:spam)`)
     const searchResp = await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages?q=${query}`)
     const { messages } = await searchResp.json()
 
@@ -135,14 +139,27 @@ export async function scanIncomingEmails() {
       }
       fetched.sort((a, b) => Number(a.internalDate) - Number(b.internalDate))
 
+      const { gmailAiLabelId } = useAppStore.getState().session
+
       for (const msg of fetched) {
-        const bodyJsonStr = extractBody(msg.payload)
+        const subject = msg.payload.headers.find((h) => h.name === 'Subject')?.value ?? ''
 
-        const envelope = JSON.parse(bodyJsonStr)
-        processEnvelope(envelope)
-
-        await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
-        addLog('scanIncomingEmails: trashed email')
+        if (subject === emailSubject) {
+          const bodyJsonStr = extractBody(msg.payload)
+          const envelope = JSON.parse(bodyJsonStr)
+          processEnvelope(envelope)
+          await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${msg.id}/trash`, { method: 'POST' })
+          addLog('scanIncomingEmails: trashed email')
+        } else {
+          if (gmailAiLabelId) {
+            await gmailFetch('scanIncomingEmails', `${GMAIL_API}/messages/${msg.id}/modify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ addLabelIds: [gmailAiLabelId], removeLabelIds: ['INBOX'] }),
+            })
+          }
+          addLog('scanIncomingEmails: moved non-SVE email to AI folder')
+        }
       }
     }
 
