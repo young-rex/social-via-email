@@ -1,6 +1,10 @@
 import { useAppStore, makeEnvelope } from '../data/dataStore.js'
 import { sendEmail } from '../email/emailUtils'
 import * as contactFeature from './contactFeature.js'
+import { contactReferer } from './contactFeature.js'
+import { feature as chatFeatureName } from './chatFeature.js'
+import { feature as conversationFeatureName } from './conversationFeature.js'
+import { feature as gpsTrackingFeatureName } from './gpsTrackingFeature.js'
 
 export const feature = 'receptionist'
 const actionReq = 'list-features'
@@ -33,11 +37,11 @@ export function processEnvelope(envelope) {
       `${replytoEmail}#${feature}`,
       `${currentUser.email}#${feature}`,
       actionResp,
-      { features: ['receptionist', 'contact', 'chat', 'conversation'], ...(envelope.args.referer && { referer: envelope.args.referer }) }
+      { features: [feature, contactFeature.feature, chatFeatureName, conversationFeatureName, gpsTrackingFeatureName], ...(envelope.args.referer && { referer: envelope.args.referer }) }
     )
     sendEmail(respEnvelope)
   } else if (envelope.args.action === actionResp) {
-    if (envelope.args.referer === 'new-contact' && envelope.args.features.includes('contact')) {
+    if (envelope.args.referer === contactReferer && envelope.args.features.includes(contactFeature.feature)) {
       contactFeature.sendActionRequest(replytoEmail)
     }
   }

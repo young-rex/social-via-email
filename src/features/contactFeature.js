@@ -3,11 +3,12 @@ import { sendEmail } from '../email/emailUtils'
 import * as receptionistFeature from './receptionistFeature.js'
 
 export const feature = 'contact'
+export const contactReferer = 'new-contact'
 const actionRequest = 'friend?'
 const actionAccept = 'friend!'
 
 export function uiAddContact(email) {
-  receptionistFeature.sendActionRequest(email, 'new-contact')
+  receptionistFeature.sendActionRequest(email, contactReferer)
 }
 
 export function sendActionRequest(email) {
