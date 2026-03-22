@@ -55,7 +55,7 @@
 
 .intro-section {
   width: 100%;
-  text-align: left;
+  text-align: justify;
   flex: 1;
   min-height: 0;
   overflow-y: auto;

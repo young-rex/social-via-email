@@ -74,8 +74,12 @@ function LoginPage() {
       </main>
 
       <footer className="footer">
-        <a href="https://github.com/lemina-model/social-via-email" target="_blank" rel="noopener noreferrer">
-          View on GitHub at https://github.com/lemina-model/social-via-email
+        <a href="https://github.com/leminallc/social-via-email/" target="_blank" rel="noopener noreferrer">
+          View on GitHub at https://github.com/leminallc/social-via-email/
+        </a>
+        <br />
+        <a href="https://leminallc.github.io/social-via-email/" target="_blank" rel="noopener noreferrer">
+          Try on GitHub Pages at https://leminallc.github.io/social-via-email/
         </a>
       </footer>
     </div>
