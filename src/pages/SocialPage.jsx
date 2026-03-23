@@ -41,6 +41,10 @@ function SocialPage() {
   }, [session.emailVendor, showInfoDialog])
 
   function handleSignOut() {
+    if (session.isDataDirty) {
+      showInfoDialog("You can't sign out as you have unsaved changes.")
+      return
+    }
     window.location.reload()
   }
 
