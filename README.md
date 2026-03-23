@@ -67,31 +67,15 @@ The app automatically creates three labels in your email account:
 | `social-via-email-inbox` | Optional. You can set up an email filter rule to route incoming Lemitar emails here, keeping your regular inbox clean. The app does not require this — it's your choice. |
 | `social-via-email-ai` | When Scan encounters emails it cannot parse (malformed JSON, natural language, etc.), it moves them here for a future AI agent or for you to handle manually. |
 
+If you expect a lot of Lemitar traffic, create a filter rule in Gmail (or Outlook) to automatically move emails with subject `Lemitar::Social-via-Email` to the `social-via-email-inbox` label. This keeps your regular inbox clean.
+
 ## 4. Getting Started
 
 ### 4.1. Sign In
 
-Click **Sign in to Gmail** or **Sign in to Outlook**. A popup window from Google (or Microsoft) will appear — the app itself never sees your password. The steps below show the Gmail flow; Outlook is similar.
+Click **Sign in to Gmail** or **Sign in to Outlook**. A popup window from Google (or Microsoft) will appear — the app itself never sees your password.
 
-**Step 1 — Sign in to your Google account.** Enter your email and password as you normally would. If you have 2-Step Verification enabled, complete that as well. This is standard Google sign-in — the same as signing in to any Google service.
-
-<a href="readme-images/gmail-oauth-1-email.png"><img src="readme-images/gmail-oauth-1-email.png" width="400"></a> <a href="readme-images/gmail-oauth-2-password.png"><img src="readme-images/gmail-oauth-2-password.png" width="400"></a>
-
-<a href="readme-images/gmail-oauth-3-2step.png"><img src="readme-images/gmail-oauth-3-2step.png" width="400"></a>
-
-**Step 2 — "Google hasn't verified this app" warning.** You may see this screen because Social via Email is an open-source project in testing mode and has not gone through Google's app verification process. This is expected. Click **Continue** to proceed.
-
-<a href="readme-images/gmail-oauth-4-unverified.png"><img src="readme-images/gmail-oauth-4-unverified.png" width="400"></a>
-
-**Step 3 — Grant permissions.** Google will show you exactly what Social via Email is asking to access. Review the permissions and click **Continue**.
-
-<a href="readme-images/gmail-oauth-5-profile-consent.png"><img src="readme-images/gmail-oauth-5-profile-consent.png" width="400"></a> <a href="readme-images/gmail-oauth-6-gmail-consent.png"><img src="readme-images/gmail-oauth-6-gmail-consent.png" width="400"></a>
-
-You can click **Learn more** to see the detailed permission breakdown:
-
-<a href="readme-images/gmail-oauth-7-permission-details.png"><img src="readme-images/gmail-oauth-7-permission-details.png" width="400"></a>
-
-**What permissions are requested and why:**
+The app requests the following permissions:
 
 | Permission | Why the app needs it |
 |---|---|
@@ -103,7 +87,7 @@ You can click **Learn more** to see the detailed permission breakdown:
 
 **This is safe.** As described in [Tech Stack and Security](#7-tech-stack-and-security), the app has no server — the OAuth token is short-lived (1 hour), stored only in browser memory, and cleared when you close the tab, refresh, or sign out.
 
-Once you grant permissions, the popup closes and you are signed in.
+Once you grant permissions, the popup closes and you are signed in. If this is your first time with OAuth 2.0, see [Section 6](#6-oauth-20-granting-and-revoking-access) for a step-by-step screenshot walkthrough.
 
 ### 4.2. First-Time Initialization
 
@@ -122,7 +106,9 @@ If this is your first time, there will be no saved state — the app starts fres
 
 After the initial automatic scan on login, both **Scan** and **Save** are manual actions. You decide when to check for new messages and when to persist your data. This is by design — you stay in control and can observe exactly what happens.
 
-The orange dot on the **Save** button is a "dirty" indicator — it appears whenever you have unsaved changes in memory. Click **Save** to persist your data.
+The orange dot on the **Save** button is a "dirty" indicator — it appears whenever you have unsaved changes in memory. Click **Save** to persist your data. **Save before closing the tab** — the app holds all state in browser memory and unsaved changes are lost if you close the tab, refresh, or your session expires.
+
+It is strongly recommended to keep Social via Email and Gmail (or Outlook) open side by side. Since Scan and Save are manual, you have time to inspect the raw JSON emails in your inbox or trash — this is the clearest way to understand the protocol and verify what the app is doing.
 
 **Recommended workflow:**
 1. Clear the logs (click **Clear logs**)
@@ -132,18 +118,10 @@ The orange dot on the **Save** button is a "dirty" indicator — it appears when
 
 ### 4.4. Revoking Access
 
-You are in full control of what apps can access your Google account. To review or remove the permissions you granted to Social via Email:
+You can revoke Social via Email's access to your account at any time. For a step-by-step walkthrough with screenshots, see [Section 6](#6-oauth-20-granting-and-revoking-access).
 
-1. Go to your [Google Account](https://myaccount.google.com)
-2. Click **Third-party apps & services** in the left sidebar
-3. Find and click **Social via Email**
-4. Review the permissions, then click **Remove all access** to revoke access
-
-<a href="readme-images/gmail-revoke-home.png"><img src="readme-images/gmail-revoke-home.png" width="400"></a> <a href="readme-images/gmail-revoke-third-party.png"><img src="readme-images/gmail-revoke-third-party.png" width="400"></a>
-
-<a href="readme-images/gmail-revoke-sve-overview.png"><img src="readme-images/gmail-revoke-sve-overview.png" width="400"></a> <a href="readme-images/gmail-revoke-sve-details.png"><img src="readme-images/gmail-revoke-sve-details.png" width="400"></a>
-
-For Outlook, go to your [Microsoft account app permissions](https://account.live.com/consent/Manage) and remove Social via Email from the list.
+- **Gmail:** Go to [Google Account → Third-party apps & services](https://myaccount.google.com), find **Social via Email**, and click **Remove all access**.
+- **Outlook:** Go to [Microsoft account app permissions](https://account.live.com/consent/Manage) and remove Social via Email from the list.
 
 ## 5. Features
 
@@ -225,26 +203,46 @@ The Logs tab shows a chronological record of all operations the app performs —
 - Click **Clear logs** to reset the log display
 - Logs are timestamped in `HH:MM` format
 
-## 6. Tips
+## 6. OAuth 2.0: Granting and Revoking Access
 
-- **Keep your email open side by side.** It is strongly recommended to have Social via Email and Gmail (or Outlook) open side by side. Scan and Save are intentionally manual so you have time to examine the JSON data in the emails. This is the best way to understand the protocol and verify what the app is doing.
-- **Set up an email filter.** If you expect a lot of Lemitar traffic, create an email filter rule to automatically move emails with the subject `Lemitar::Social-via-Email` to the `social-via-email-inbox` label. This keeps your regular inbox clean.
-- **Save before you leave.** The app holds all state in browser memory. If you close the tab or your session expires without saving, unsaved changes are lost.
-- **Session expires in 1 hour.** The app will warn you at the 55-minute mark. Sign out and sign back in to continue.
+OAuth 2.0 is a well-known standard — plenty of resources cover it in depth. The walkthroughs below use Gmail. Because Social via Email depends on OAuth 2.0 to function, we include at least one worked example so nothing is left to guesswork. If you use Outlook, the flow is similar — the screens will look different but the steps follow the same pattern.
 
-## 7. Tech Stack and Security
+<details>
+<summary>Step-by-step screenshot walkthroughs</summary>
 
-Social via Email is a pure client-side React app with no server-side code.
+### 6.1. Granting Access via Sign-In
 
-- **OAuth 2.0 authentication** — uses Gmail or Outlook sign-in. No passwords are collected or stored.
-- **Short-lived access token** — the OAuth token expires after 1 hour. The app warns you at the 55-minute mark.
-- **No persistent browser storage** — no cookies, no localStorage, no IndexedDB. All runtime data lives in browser memory and is cleared when you close the tab, refresh, or sign out.
-- **No third-party services** — only Google/Microsoft APIs are used. No analytics, no tracking.
+**Step 1 — Sign in to your Google account.** Enter your email and password as you normally would. If you have 2-Step Verification enabled, complete that as well. This is standard Google sign-in — the same as signing in to any Google service.
 
-Built with:
+<a href="readme-images/gmail-oauth-1-email.png"><img src="readme-images/gmail-oauth-1-email.png" width="400"></a> <a href="readme-images/gmail-oauth-2-password.png"><img src="readme-images/gmail-oauth-2-password.png" width="400"></a>
 
-- [React 19](https://react.dev/) — UI framework
-- [Zustand](https://zustand.docs.pmnd.rs/) — state management
-- [Vite](https://vite.dev/) — build tool
-- Gmail API / Microsoft Graph API — email operations
-- OAuth 2.0 — authentication
+<a href="readme-images/gmail-oauth-3-2step.png"><img src="readme-images/gmail-oauth-3-2step.png" width="400"></a>
+
+**Step 2 — "Google hasn't verified this app" warning.** You may see this screen because Social via Email is an open-source project in testing mode and has not gone through Google's app verification process. This is expected. Click **Continue** to proceed.
+
+<a href="readme-images/gmail-oauth-4-unverified.png"><img src="readme-images/gmail-oauth-4-unverified.png" width="400"></a>
+
+**Step 3 — Grant permissions.** Google will show you exactly what Social via Email is asking to access. Review the permissions and click **Continue**.
+
+<a href="readme-images/gmail-oauth-5-profile-consent.png"><img src="readme-images/gmail-oauth-5-profile-consent.png" width="400"></a> <a href="readme-images/gmail-oauth-6-gmail-consent.png"><img src="readme-images/gmail-oauth-6-gmail-consent.png" width="400"></a>
+
+You can click **Learn more** to see the detailed permission breakdown:
+
+<a href="readme-images/gmail-oauth-7-permission-details.png"><img src="readme-images/gmail-oauth-7-permission-details.png" width="400"></a>
+
+Once you click **Continue**, the popup closes and you are signed in.
+
+### 6.2. Revoking Access When You're Done with the App
+
+Revoking access is done through your Google account — not through Social via Email itself. It permanently removes the app's permission to access your Gmail. This is something you do once when you have fully decided to stop using the app, not as a routine step after each session — signing out of Social via Email is enough for day-to-day use. To revoke:
+
+1. Go to your [Google Account](https://myaccount.google.com)
+2. Click **Third-party apps & services** in the left sidebar
+3. Find and click **Social via Email**
+4. Review the permissions, then click **Remove all access**
+
+<a href="readme-images/gmail-revoke-home.png"><img src="readme-images/gmail-revoke-home.png" width="400"></a> <a href="readme-images/gmail-revoke-third-party.png"><img src="readme-images/gmail-revoke-third-party.png" width="400"></a>
+
+<a href="readme-images/gmail-revoke-sve-overview.png"><img src="readme-images/gmail-revoke-sve-overview.png" width="400"></a> <a href="readme-images/gmail-revoke-sve-details.png"><img src="readme-images/gmail-revoke-sve-details.png" width="400"></a>
+
+</details>
