@@ -7,11 +7,11 @@ import TabConversations from './TabConversations'
 import TabLogs from './TabLogs'
 import './SocialPage.css'
 
-function SessionExpiryDialog({ onClose, vendorName }) {
+function InfoDialog({ message, onClose }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200 }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
       <div style={{ background: '#fff', color: '#111', padding: '1.5em 2em', borderRadius: '8px', minWidth: '300px', display: 'flex', flexDirection: 'column', gap: '0.75em' }}>
-        <p style={{ margin: 0, fontWeight: 600 }}>Your 1-hour {vendorName} session is expiring soon.</p>
+        <p style={{ margin: 0 }}>{message}</p>
         <button onClick={onClose} style={{ alignSelf: 'flex-end' }}>OK</button>
       </div>
     </div>
@@ -31,14 +31,14 @@ function formatTs(ts) {
 }
 
 function SocialPage() {
-  const { session } = useAppStore()
+  const { session, infoDialog, dismissInfoDialog, showInfoDialog } = useAppStore()
   const [activeTab, setActiveTab] = useState('logs')
-  const [showExpiryWarning, setShowExpiryWarning] = useState(false)
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowExpiryWarning(true), 55 * 60 * 1000)
+    const vendorName = session.emailVendor === 'outlook' ? 'Outlook' : 'Gmail'
+    const timer = setTimeout(() => showInfoDialog(`Your 1-hour ${vendorName} session is expiring in 5 minutes.`), 55 * 60 * 1000)
     return () => clearTimeout(timer)
-  }, [])
+  }, [session.emailVendor, showInfoDialog])
 
   function handleSignOut() {
     window.location.reload()
@@ -109,11 +109,8 @@ function SocialPage() {
           Try on GitHub Pages at https://leminallc.github.io/social-via-email/
         </a>
       </footer>
-      {showExpiryWarning && (
-        <SessionExpiryDialog
-          onClose={() => setShowExpiryWarning(false)}
-          vendorName={session.emailVendor === 'outlook' ? 'Outlook' : 'Gmail'}
-        />
+      {infoDialog && (
+        <InfoDialog message={infoDialog} onClose={dismissInfoDialog} />
       )}
     </div>
   )

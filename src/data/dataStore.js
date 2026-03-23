@@ -61,6 +61,7 @@ const initialState = {
   chats:       [],
   conversations: [],
   fullPostMap: new Map(),
+  infoDialog:  null,
 }
 
 export const useAppStore = create((set) => ({
@@ -79,4 +80,7 @@ export const useAppStore = create((set) => ({
   setConversations: (conversations) => set((s) => ({ conversations, session: { ...s.session, isDataDirty: true } })),
 
   setFullPostMap: (fullPostMap) => set((s) => ({ fullPostMap, session: { ...s.session, isDataDirty: true } })),
+
+  showInfoDialog:   (message) => set({ infoDialog: message }),
+  dismissInfoDialog: () => set({ infoDialog: null }),
 }))

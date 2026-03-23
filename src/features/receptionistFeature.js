@@ -40,9 +40,16 @@ export function processEnvelope(envelope) {
       { features: [feature, contactFeature.feature, chatFeatureName, conversationFeatureName, gpsTrackingFeatureName], ...(envelope.args.referer && { referer: envelope.args.referer }) }
     )
     sendEmail(respEnvelope)
+
+    addLog(`receptionistFeature: Sending feature list to ${replytoEmail}`)
+
   } else if (envelope.args.action === actionResp) {
+
     if (envelope.args.referer === contactReferer && envelope.args.features.includes(contactFeature.feature)) {
+      addLog(`receptionistFeature: Target email ${replytoEmail} supports contact feature. Sending contact request.`)
       contactFeature.sendActionRequest(replytoEmail)
+      const { showInfoDialog } = useAppStore.getState()
+      showInfoDialog(`${replytoEmail} supports contact feature. Contact request sent.`)
     }
   }
 }
