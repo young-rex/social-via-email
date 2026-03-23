@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { navigate } from './router'
 import { useAppStore } from '../data/dataStore'
 import { scanIncomingEmails, saveStateToEmail } from '../email/emailUtils'
 import TabContacts from './TabContacts'
@@ -42,8 +41,7 @@ function SocialPage() {
   }, [])
 
   function handleSignOut() {
-    useAppStore.getState().resetStore()
-    navigate('/')
+    window.location.reload()
   }
 
   return (

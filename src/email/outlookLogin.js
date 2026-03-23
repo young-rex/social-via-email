@@ -29,7 +29,7 @@ export function handleSignIn(e) {
     try {
       if (popup.closed) {
         clearInterval(interval)
-        onError()
+        window.location.reload()
         return
       }
       const hash = popup.location.hash
@@ -42,11 +42,6 @@ export function handleSignIn(e) {
       // Cross-origin while navigating to Microsoft login — keep polling
     }
   }, 200)
-
-  function onError() {
-    setSession(makeSession())
-    navigate('/')
-  }
 
   function onSuccess(accessToken) {
     Promise.all([
@@ -80,8 +75,7 @@ export function handleSignIn(e) {
         navigate('/social')
       })
       .catch(() => {
-        setSession(makeSession())
-        navigate('/')
+        window.location.reload()
       })
   }
 }

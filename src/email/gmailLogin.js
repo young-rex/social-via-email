@@ -13,17 +13,12 @@ export function handleSignIn(e) {
     scope: SCOPES,
     callback: (tokenResponse) => {
       if (tokenResponse.error) {
-        onError(tokenResponse)
+        window.location.reload()
       } else {
         onSuccess(tokenResponse)
       }
     },
   }).requestAccessToken()
-
-  function onError() {
-    setSession(makeSession())
-    navigate('/')
-  }
 
   function onSuccess(tokenResponse) {
     const accessToken = tokenResponse.access_token
@@ -44,8 +39,7 @@ export function handleSignIn(e) {
         navigate('/social')
       })
       .catch(() => {
-        setSession(makeSession())
-        navigate('/')
+        window.location.reload()
       })
   }
 }
