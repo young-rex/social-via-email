@@ -1,26 +1,16 @@
 # Social via Email
 
-A proof-of-concept social networking app where your email account is your identity, your app, and your database — all in one.
+Social via Email demonstrates that a social app doesn't have to own your identity or your data. Your email address is your social ID, your email account is your database, and Social via Email is just the app — open source and replaceable. See the [Lemitar vision](Lemitar.md).
 
-<a href="readme-images/landing-page.png"><img src="readme-images/landing-page.png" width="400"></a>
-
-## 1. What is Social via Email?
-
-Social via Email turns your email account into a participant in a decentralized social network. It uses email addresses as your social ID and your email account as your personal database. There is no server. There is no sign-up. You sign in with your own Gmail or Outlook account, and everything lives in your inbox.
-
-It demonstrates two core data models — linear and tree-structured — from which nearly all social features derive:
-
-- **Contacts** — email addresses as IDs, with names and profile images
-- **Chats** — private 1:1 or group linear conversations
-- **Conversations** — tree-structured threaded discussions
-
-This is a proof-of-concept for the Lemitar vision: promoting independent IDs, apps, and data ownership for personal social needs.
+*Email is not an ideal database — this is for demonstration only. A SQL database would be a more natural fit, but it requires prerequisite setup and makes the app less intuitive to try.*
 
 - **You own your ID** — your email address. No platform-specific username, no account to lose.
 - **You own your app** — Social via Email is fully open source (MIT license). Fork it, build your own, or use similar apps from other developers.
 - **You own your data** — your contacts, chats, and conversations are stored entirely in your own email account. No one else has access.
 
-## 2. Running the App
+<a href="readme-images/landing-page.png"><img src="readme-images/landing-page.png" width="400"></a>
+
+## 1. Running the App
 
 **Option A: Use the hosted version**
 
@@ -37,9 +27,9 @@ npm run dev
 
 The app runs at [http://localhost:5173/social-via-email/](http://localhost:5173/social-via-email/).
 
-## 3. How It Works
+## 2. How It Works
 
-### 3.1. Email as Your Database
+### 2.1. Email as Your Database
 
 When you click **Save**, the app serializes your entire state (contacts, chats, conversations) into a single JSON string and stores it as the body of an email in your account. This email has the subject `memory-dump` and is sent from `sve@localhost` — a special address that ensures the email stays internal to your account and goes nowhere.
 
@@ -49,15 +39,15 @@ You can open this email in Gmail or Outlook and see your data in plain JSON — 
 
 <a href="readme-images/gmail-memory-dump-list.png"><img src="readme-images/gmail-memory-dump-list.png" width="400"></a> <a href="readme-images/gmail-memory-dump-content.png"><img src="readme-images/gmail-memory-dump-content.png" width="400"></a>
 
-### 3.2. Email as Communication
+### 2.2. Email as Communication
 
 When you add a contact, send a chat message, or post in a conversation, the app sends an email to the recipient with a structured JSON envelope in the body. The subject line is `Lemitar::Social-via-Email`. When the recipient clicks **Scan**, the app reads these emails, processes the commands, and moves them to trash.
 
-All communication is peer-to-peer through email. There is no central server relaying messages.
+The app has no server — messages go directly between email accounts.
 
 Take a look at these emails in your Trash after a Scan — the JSON body reveals the protocol and the actual data exchanged between users. Exploring these envelopes is the best way to understand how the app communicates.
 
-### 3.3. Three Gmail Labels (or Outlook Folders)
+### 2.3. Three Gmail Labels (or Outlook Folders)
 
 The app automatically creates three labels in your email account:
 
@@ -69,9 +59,9 @@ The app automatically creates three labels in your email account:
 
 If you expect a lot of Lemitar traffic, create a filter rule in Gmail (or Outlook) to automatically move emails with subject `Lemitar::Social-via-Email` to the `social-via-email-inbox` label. This keeps your regular inbox clean.
 
-## 4. Getting Started
+## 3. Getting Started
 
-### 4.1. Sign In
+### 3.1. Sign In
 
 Click **Sign in to Gmail** or **Sign in to Outlook**. A popup window from Google (or Microsoft) will appear — the app itself never sees your password.
 
@@ -85,11 +75,11 @@ The app requests the following permissions:
 | Manage labels | To create and use the three labels (`social-via-email-data`, `-inbox`, `-ai`) that organize the app's emails |
 | Move emails | To move processed incoming emails to trash after scanning |
 
-**This is safe.** As described in [Tech Stack and Security](#7-tech-stack-and-security), the app has no server — the OAuth token is short-lived (1 hour), stored only in browser memory, and cleared when you close the tab, refresh, or sign out.
+**This is safe.** The app has no server — the OAuth token is short-lived (1 hour), stored only in browser memory, and cleared when you close the tab, refresh, or sign out.
 
-Once you grant permissions, the popup closes and you are signed in. If this is your first time with OAuth 2.0, see [Section 6](#6-oauth-20-granting-and-revoking-access) for a step-by-step screenshot walkthrough.
+Once you grant permissions, the popup closes and you are signed in. If this is your first time with OAuth 2.0, see [Section 5](#5-oauth-20-granting-and-revoking-access) for a step-by-step screenshot walkthrough.
 
-### 4.2. First-Time Initialization
+### 3.2. First-Time Initialization
 
 After sign-in, the app lands on the **Logs** tab and automatically runs initialization:
 
@@ -102,7 +92,7 @@ After sign-in, the app lands on the **Logs** tab and automatically runs initiali
 
 If this is your first time, there will be no saved state — the app starts fresh.
 
-### 4.3. Scan and Save Are Manual
+### 3.3. Scan and Save Are Manual
 
 After the initial automatic scan on login, both **Scan** and **Save** are manual actions. You decide when to check for new messages and when to persist your data. This is by design — you stay in control and can observe exactly what happens.
 
@@ -116,16 +106,16 @@ It is strongly recommended to keep Social via Email and Gmail (or Outlook) open 
 3. Switch to the **Logs** tab to see what happened
 4. Optionally, open your email account to inspect the raw JSON emails
 
-### 4.4. Revoking Access
+### 3.4. Revoking Access
 
-You can revoke Social via Email's access to your account at any time. For a step-by-step walkthrough with screenshots, see [Section 6](#6-oauth-20-granting-and-revoking-access).
+You can revoke Social via Email's access to your account at any time. For a step-by-step walkthrough with screenshots, see [Section 5](#5-oauth-20-granting-and-revoking-access).
 
 - **Gmail:** Go to [Google Account → Third-party apps & services](https://myaccount.google.com), find **Social via Email**, and click **Remove all access**.
 - **Outlook:** Go to [Microsoft account app permissions](https://account.live.com/consent/Manage) and remove Social via Email from the list.
 
-## 5. Features
+## 4. Features
 
-### 5.1. Contacts
+### 4.1. Contacts
 
 <a href="readme-images/contact-tab-with-dialog.png"><img src="readme-images/contact-tab-with-dialog.png" width="400"></a> <a href="readme-images/contact-tab-list.png"><img src="readme-images/contact-tab-list.png" width="400"></a>
 
@@ -144,7 +134,7 @@ This means both users need to **Scan twice** for the contact to be fully added o
 
 This back-and-forth may feel slow, but it is a consequence of email being an asynchronous protocol — each Scan can only process emails that have already been delivered.
 
-### 5.2. Chats
+### 4.2. Chats
 
 <a href="readme-images/chats-tab-with-dialog.png"><img src="readme-images/chats-tab-with-dialog.png" width="400"></a> <a href="readme-images/chats-tab-expanded.png"><img src="readme-images/chats-tab-expanded.png" width="400"></a>
 
@@ -171,7 +161,7 @@ To leave a chat:
 
 When someone leaves a chat, the remaining participants retain all messages and the full subscriber list, so the conversation continues uninterrupted — even if the original chat creator leaves.
 
-### 5.3. Conversations
+### 4.3. Conversations
 
 <a href="readme-images/conversations-tab-with-dialog.png"><img src="readme-images/conversations-tab-with-dialog.png" width="400"></a> <a href="readme-images/conversations-tab-expanded.png"><img src="readme-images/conversations-tab-expanded.png" width="400"></a>
 
@@ -196,21 +186,21 @@ To leave a conversation:
 1. Expand the conversation
 2. Click **Unsubscribe** — the conversation and all its posts are removed from your local state
 
-### 5.4. Logs
+### 4.4. Logs
 
 The Logs tab shows a chronological record of all operations the app performs — label initialization, email scanning, sending, saving, and any errors. It provides full transparency into what the app is doing with your email account.
 
 - Click **Clear logs** to reset the log display
 - Logs are timestamped in `HH:MM` format
 
-## 6. OAuth 2.0: Granting and Revoking Access
+## 5. OAuth 2.0: Granting and Revoking Access
 
 OAuth 2.0 is a well-known standard — plenty of resources cover it in depth. The walkthroughs below use Gmail. Because Social via Email depends on OAuth 2.0 to function, we include at least one worked example so nothing is left to guesswork. If you use Outlook, the flow is similar — the screens will look different but the steps follow the same pattern.
 
 <details>
 <summary>Step-by-step screenshot walkthroughs</summary>
 
-### 6.1. Granting Access via Sign-In
+### 5.1. Granting Access via Sign-In
 
 **Step 1 — Sign in to your Google account.** Enter your email and password as you normally would. If you have 2-Step Verification enabled, complete that as well. This is standard Google sign-in — the same as signing in to any Google service.
 
@@ -232,7 +222,7 @@ You can click **Learn more** to see the detailed permission breakdown:
 
 Once you click **Continue**, the popup closes and you are signed in.
 
-### 6.2. Revoking Access When You're Done with the App
+### 5.2. Revoking Access When You're Done with the App
 
 Revoking access is done through your Google account — not through Social via Email itself. It permanently removes the app's permission to access your Gmail. This is something you do once when you have fully decided to stop using the app, not as a routine step after each session — signing out of Social via Email is enough for day-to-day use. To revoke:
 
