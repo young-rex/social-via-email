@@ -13,7 +13,7 @@ export function handleSignIn(e) {
     scope: SCOPES,
     callback: (tokenResponse) => {
       if (tokenResponse.error) {
-        window.location.reload()
+        window.location.href = import.meta.env.BASE_URL
       } else {
         onSuccess(tokenResponse)
       }
@@ -39,7 +39,7 @@ export function handleSignIn(e) {
         navigate('/social')
       })
       .catch(() => {
-        window.location.reload()
+        window.location.href = import.meta.env.BASE_URL
       })
   }
 }

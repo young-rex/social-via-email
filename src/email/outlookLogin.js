@@ -29,7 +29,7 @@ export function handleSignIn(e) {
     try {
       if (popup.closed) {
         clearInterval(interval)
-        window.location.reload()
+        window.location.href = import.meta.env.BASE_URL
         return
       }
       const hash = popup.location.hash
@@ -75,7 +75,7 @@ export function handleSignIn(e) {
         navigate('/social')
       })
       .catch(() => {
-        window.location.reload()
+        window.location.href = import.meta.env.BASE_URL
       })
   }
 }

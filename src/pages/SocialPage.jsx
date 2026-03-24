@@ -45,7 +45,7 @@ function SocialPage() {
       showInfoDialog("You can't sign out as you have unsaved changes.")
       return
     }
-    window.location.reload()
+    window.location.href = import.meta.env.BASE_URL
   }
 
   return (
