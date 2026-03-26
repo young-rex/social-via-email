@@ -6,7 +6,7 @@
 
 ## 1. Introduction
 
-Before Lemitar, a person's digital existence is fragmented and unowned. Their contacts, conversations, and interactions are scattered across platforms that don't know about each other. Each platform holds a piece of how the person interacts with others, but there is no single "them" online — just fragments spread across services. Most of these fragments are held by platforms — platforms that can change terms, deplatform them, or shadow ban them.
+Before Lemitar, a person's digital existence is fragmented and unowned. Their contacts, conversations, and interactions are scattered across platforms that don't know about each other. Each platform holds a piece of how the person interacts with others, but there is no single "them" online — just fragments spread across services. Most of these fragments are held by platforms — platforms that can change terms, deplatform them, or shadow-ban them.
 
 Existing approaches address parts of this problem — federated networks, self-hosted tools, decentralized identity standards — but none has unified identification ownership, data portability, and social interaction into a framework that works for ordinary people. And people cannot decide how their digital presence behaves as a whole — each platform defines what they can do within its walls.
 
@@ -18,7 +18,7 @@ The name Lemitar combines Lemina and Avatar. [Lemina](https://doi.org/10.36227/t
 
 ## 2. Lemitar Structure
 
-A Lemitar consists of two elements: Lemitar ID and Lemitar Body. ID means Identifier — a label determined by a system (the internet) to locate and reference a Lemitar, much like a street address is determined by and part of the postal system. Identity, by contrast, belongs to the person behind the Lemitar, not to the Lemitar itself.
+At the top level, a Lemitar consists of two elements: Lemitar ID and Lemitar Body. ID means Identifier — a label determined by a system (the internet) to locate and reference a Lemitar, much like a street address is determined by and part of the postal system. Identity, by contrast, belongs to the person behind the Lemitar, not to the Lemitar itself.
 
 These two elements are not equal peers — there is a concept hierarchy, including the supporting infrastructure that enables them:
 
@@ -30,16 +30,17 @@ The hierarchy is real — ID is the foundation and plays a more important role t
 
 ### 2.1. Lemitar ID
 
-#### 2.1.1. Four Abilities
+#### 2.1.1. Five Abilities
 
-Splitting a Lemitar into ID and Body seems like a small step, but it is a large leap. The real insight is in what qualifies as a Lemitar ID. All interaction — including socialization — depends on four abilities:
+Splitting a Lemitar into ID and Body seems like a small step, but it is a large leap. The real insight is in what qualifies as a Lemitar ID. All interaction — including socialization — depends on five abilities:
 
 - **Referenceability** — Before Alice can interact with Bob, Bob has to exist in Alice's mind. She references him by name or face. Without referenceability, people cannot think about others or mention them in conversation.
 - **Reachability** — When Alice and Bob want to engage further, Alice needs to locate Bob and reach him. If they're a thousand miles apart, she finds his phone number. Technology extends human reach. In the real world, different technologies and organizations — postal services, phone networks, the internet — provide reachability for different purposes.
 - **Deliverability** — Reachability's counterpart: once you've located someone, can you actually get a message through? If Alice can't speak, Bob can't hear, and there's no medium to carry her voice, talking doesn't happen. The same logic applies to every communication system.
 - **Ownability** — In the physical world, you own your mouth, your hands, your body — the instruments of your interaction. Others cannot censor you at this level; censorship comes from higher-level systems like laws and institutions. Ownability is the ability to own your means of interaction.
+- **Verifiability** — When Alice receives a message from Bob, she needs to know it is actually Bob. In the physical world, she recognizes his face and voice. Online, without verifiability, the other four abilities can be exploited — someone can impersonate Bob by using his name (referenceability) to reach Alice (reachability and deliverability). Verifiability closes this gap.
 
-These four abilities reflect how human interaction happens in the physical world. An independent Lemitar ID must satisfy all four.
+These five abilities reflect how human interaction happens in the physical world. An independent Lemitar ID must satisfy all five.
 
 #### 2.1.2. Domain Name as Lemitar ID
 
@@ -47,18 +48,19 @@ A domain name is the most fundamental identifier on the internet — it cannot b
 
 Platforms themselves operate on top of the internet's domain system, then use their own software and infrastructure to support user handles. This places a handle on top of a higher-level mechanism built over the internet itself — multiple layers of dependency away from the fundamental level.
 
-Domain names offer regular people the same ownability that corporations have. A Lemitar ID based on a domain name the person owns (like `alice.smith-family.com`) satisfies all four abilities in a unified way:
+Domain names offer regular people the same ownability that corporations have. A Lemitar ID based on a domain name the person owns (like `alice.smith-family.com`) satisfies all five abilities in a unified way:
 
 - Referenceability — it identifies the person
 - Reachability — it locates the person on the internet
 - Deliverability — the internet's infrastructure carries messages through
 - Ownability — the person owns the domain
+- Verifiability — X.509 certificates and cryptographic keys prove the domain owner's identity
 
 A Lemitar ID can also be expressed as an email address on an owned domain (like `alice@smith-family.com`). A bare domain name does not function on its own — it needs software and a protocol to listen for incoming contacts. An email address is essentially a pre-configured domain name: SMTP as the protocol and an email server as the software are already in place. Other configurations are equally valid — a domain could use a WebSocket server or any other listening mechanism. Both satisfy the four abilities in the same way and to the same degree. In either case, interactions remain asynchronous — being online does not mean responding immediately.
 
 #### 2.1.3. Independent and Dependent Lemitars
 
-A Lemitar ID without ownability can still function on the internet, but it is a dependent Lemitar. An email address like `alice@one-company.com` has referenceability, reachability, and deliverability — but the provider owns the domain and can revoke, censor, or change terms. Just as a person can work as self-employed or work for an employer, a Lemitar can function as independent or dependent. The nature of their existence is fundamentally different.
+A Lemitar ID without ownability can still function on the internet, but it is a dependent Lemitar. An email address like `alice@one-company.com` has referenceability, reachability, and deliverability — but the provider owns the domain and can revoke, censor, or change terms. Just as a person can be self-employed or work for an employer, a Lemitar can function as independent or dependent. The nature of their existence is fundamentally different.
 
 An independent Lemitar can still use platforms — letting them host features is just a business relationship. The person can use multiple platforms simultaneously, leave any platform and take their ID and data with them, or mix free, paid, open source, and DIY software. What matters is the ability to walk away. Ownability also depends on domain hierarchy — a subdomain or mailbox under someone else's domain (even a family member's) is a softer dependency, but a dependency nonetheless.
 
@@ -70,7 +72,7 @@ A Lemitar ID can have attributes such as human names, pictures, and signatures. 
 
 This document focuses on what Lemitar is and whether it works. Security is not explored in depth, but the baseline is established: each Lemitar should have an X.509 certificate for domain name or email address verification and a public/private key pair for communication encryption. These are well-understood standards — Lemitar does not invent new security mechanisms, it relies on existing ones.
 
-#### 2.1.6. Applications
+#### 2.1.6. ID Use Cases
 
 A Lemitar is not a real-world identity document — it is a digital presence. One person can have multiple Lemitars: a work Lemitar, a personal Lemitar, a hobby Lemitar. Each has its own ID, its own Body, its own features. This is by design — humans present different facets of themselves in different contexts, and Lemitar reflects that.
 
@@ -84,7 +86,7 @@ One piece of software may provide one or more features, and a Body may include o
 
 #### 2.2.1. Features as Human Abilities
 
-Features are not arbitrary software categories drawn by developers. They map to human abilities or skills. Chat maps to the ability to converse. Contacts map to the ability to know and remember people. GPS tracking maps to the ability to share one's location. The feature boundaries are drawn by what humans naturally do, not by how software happens to be packaged.
+Features are not arbitrary software categories defined by developers. They map to human abilities or skills. Chat maps to the ability to converse. Contacts map to the ability to know and remember people. GPS tracking maps to the ability to share one's location. The feature boundaries are drawn by what humans naturally do, not by how software happens to be packaged.
 
 This is why per-feature thinking is natural rather than forced. Human abilities are stable — people will always need to converse, remember others, locate each other. The software serving those abilities is replaceable.
 
@@ -104,15 +106,17 @@ The biological analogy is instructive: individual cells perform functions, but a
 
 The full significance of this shift remains to be seen. But the framing itself — toolbox to avatar — may reveal characteristics we don't yet see, the same way naming "life" as distinct from "a collection of cells" opened biology as a field.
 
-#### 2.2.4. Applications
+#### 2.2.4. Body Use Cases
 
-Human interaction is mainly two kinds: social and economic/business. A Lemitar functions in both. Social features are the primary domain, but business use cases exist too — for example, GPS tracking where a delivery person can reach someone in real time at a non-postal address like a mountain or beach, or a payment feature that makes person-to-person transactions between even strangers as simple as scanning a code.
+Human interaction is mainly of two kinds: social and economic/business. A Lemitar functions in both. Social features are the primary domain, but business use cases exist too — for example, GPS tracking where a delivery person can reach someone in real time at a non-postal address like a mountain or beach, or a payment feature that makes person-to-person transactions between even strangers as simple as scanning a code.
 
 Body can also absorb internal features — personal toolbox utilities such as calendars, file converters, or note-taking tools. These are not Lemitar's purpose, but once the framework exists, it is natural to let it manage them as well, when the infrastructure supports it.
 
 In the GenAI era, this becomes especially powerful. GenAI (such as [OpenClaw](https://openclaw.ai/)) can serve as glue between internal and interaction features. For example, when a Lemitar receives a message asking about the owner's schedule tomorrow, and the owner is not around, OpenClaw can read the calendar (an internal feature) and respond on the owner's behalf (an interaction feature) — given that the sender is authorized and OpenClaw has been granted permission in advance. GenAI brings the capability to manage things inside the body and bridge them to the outside.
 
 ## 3. Lemitar Behavior
+
+Lemitar Structure (Section 2) defines what a Lemitar is — its parts and how they relate. This section defines how a Lemitar behaves — how it communicates, how its infrastructure is organized, and how it presents itself to others.
 
 ### 3.1. Three Phases of Communication
 
@@ -126,7 +130,7 @@ In social computing, the three phases coexist:
 
 3. **Phase 3 — Human-in-the-Loop.** Can jump out of the box entirely. A human isn't bound to the channel, the format, or even the medium. They can pick up the phone, walk next door, ask a mutual friend — whatever it takes to fulfill a goal or fix a problem. They also make judgment calls no program or AI can. Handles novel, unprecedented situations — also low-frequency and human speed in social computing.
 
-These phases are complementary, not replacements for each other. Each is irreplaceable for its class of interaction. They represent escalating degrees of flexibility: Phase 1 has zero (follow the spec or fail), Phase 2 is flexible within the channel, Phase 3 is unbounded. In a functioning Lemitar, all three are present simultaneously as a cascade — Phase 1 handles what it can, Phase 2 catches what Phase 1 can't, Phase 3 is the final authority.
+These phases are complementary, not replacements for each other. Each is irreplaceable for its class of interaction. They represent escalating degrees of flexibility: Phase 1 has zero flexibility (follow the spec or fail), Phase 2 is flexible within the channel, Phase 3 is unbounded. In a functioning Lemitar, all three are present simultaneously as a cascade — Phase 1 handles what it can, Phase 2 catches what Phase 1 can't, Phase 3 is the final authority.
 
 ### 3.2. Data and Protocol
 
@@ -150,7 +154,7 @@ Two keys make Lemitar's ecosystem possible:
 
 2. **Data and protocol legoization** — the second key. Without it, even if you own your data, it's tangled across software boundaries and can't be moved at the feature level. Per-feature data storage with standard schemas, and per-feature protocols with standard interfaces, make software truly swappable.
 
-The order matters: key 1 is prerequisite to key 2. Ownership without legoization gives freedom to leave but not freedom to mix. Legoization without ownership is meaningless — modular data means little if someone else controls it.
+The order matters: key 1 is a prerequisite for key 2. Ownership without legoization gives freedom to leave but not freedom to mix. Legoization without ownership is meaningless — modular data means little if someone else controls it.
 
 #### 3.2.4. The Marketplace
 
@@ -173,7 +177,7 @@ This body does not need to exist before the marketplace can function. The intern
 
 ### 3.3. The Receptionist
 
-Every Lemitar feature is optional — chat, GPS, conversations, any of them. But Receptionist must exist. It is the only mandatory feature. The reasoning is simple: if a person can't say Hi or can't respond to Hi, there is no common ground for any interaction. Receptionist is that baseline.
+Every Lemitar feature is optional — chat, GPS, conversations, any of them. But Receptionist must exist. It is the only mandatory feature. The reasoning is simple: if a person can't say "Hi" or can't respond to "Hi", there is no common ground for any interaction. Receptionist is that baseline.
 
 #### 3.3.1. Capability Disclosure
 
