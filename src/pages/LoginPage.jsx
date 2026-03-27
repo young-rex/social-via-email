@@ -40,7 +40,7 @@ function LoginPage() {
             className="login-button"
             onClick={handleGmailSignIn}
           >
-            <img src={`${import.meta.env.BASE_URL}gmail.png`} alt="Gmail icon" className="gmail-icon" />
+            <img src={`${import.meta.env.BASE_URL}gmail.jpg`} alt="Gmail icon" className="email-icon" />
             Sign in to Gmail
           </a>
           <a
@@ -48,7 +48,7 @@ function LoginPage() {
             className="login-button"
             onClick={handleOutlookSignIn}
           >
-            <img src={`${import.meta.env.BASE_URL}outlook.png`} alt="Outlook icon" className="gmail-icon" />
+            <img src={`${import.meta.env.BASE_URL}outlook.jpg`} alt="Outlook icon" className="email-icon" />
             Sign in to Outlook
           </a>
         </section>
