@@ -1,6 +1,6 @@
 # Social via Email
 
-Social via Email demonstrates that a social app doesn't have to own your identity or your data. Your email address is your social ID, your email account is your data store, and Social via Email is just the app — open source and replaceable. See the [Lemitar vision](Lemitar.md).
+Social via Email demonstrates that a social app doesn't have to own your identity or your data. Your email address is your social ID, your email account is your data store, and Social via Email is just the app — open source and replaceable. See the [Lemitar vision](https://github.com/young-rex/papers/blob/main/Lemitar.md).
 
 *Email is not an ideal data store — this is for demonstration only. A real database would be a more natural fit, but it requires prerequisite setup and makes the app less intuitive to try.*
 
@@ -17,7 +17,7 @@ If you are new here, we recommend reading through the sections in order — it w
 
 **Option A: Use the hosted version**
 
-The app is hosted on GitHub Pages directly from this repository's `docs/` folder — what you see is exactly what's in the repo. No installation needed: [https://leminallc.github.io/social-via-email/](https://leminallc.github.io/social-via-email/).
+The app is hosted on GitHub Pages directly from this repository's `docs/` folder — what you see is exactly what's in the repo. No installation needed: [https://young-rex.github.io/social-via-email/](https://young-rex.github.io/social-via-email/).
 
 **Option B: Run locally**
 
