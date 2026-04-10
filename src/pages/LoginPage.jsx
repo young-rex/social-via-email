@@ -81,6 +81,10 @@ function LoginPage() {
         <a href="https://young-rex.github.io/social-via-email/" target="_blank" rel="noopener noreferrer">
           Try on GitHub Pages at https://young-rex.github.io/social-via-email/
         </a>
+        <br />
+        <a href={`${import.meta.env.BASE_URL}privacy/`}>Privacy Policy</a>
+        {' · '}
+        <a href={`${import.meta.env.BASE_URL}tos/`}>Terms of Service</a>
       </footer>
     </div>
   )
