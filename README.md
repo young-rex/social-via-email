@@ -38,7 +38,7 @@ The app runs at [http://localhost:5173/social-via-email/](http://localhost:5173/
 <details>
 <summary><h3>2.1. Email as Communication</h3></summary>
 
-Social via Email uses your email account as the transport layer for all social interactions. When you add a contact, send a chat message, or post in a conversation, the app sends an email to the recipient with a structured JSON envelope in the body. When you click **Scan**, the app reads incoming emails, processes the commands in their JSON bodies, updates your in-memory state, and moves the emails to trash. The app has no server — messages go directly between email accounts.
+Social via Email uses your email account as the transport layer for all social interactions. When you add a contact, send a chat message, or post in a conversation, the app sends an email to the recipient with a structured JSON envelope in the body. When you click **Scan**, the app reads incoming emails, processes the commands in their JSON bodies, updates your in-memory state, and moves the emails to trash. The app has no server — delivery is mediated by normal Internet and email infrastructure, so messages travel between email accounts rather than through a Social via Email backend.
 
 The subject line is `Lemitar::Social-via-Email` — this is not part of the protocol; it is simply how the app distinguishes Social via Email messages from the user's normal emails. The protocol itself is entirely in the JSON body.
 
@@ -165,7 +165,7 @@ This means both users need to **Scan twice** for the contact to be fully added o
 
 The Receptionist is a concept from the Lemitar vision. In a world where everyone runs their own app — and each app may be built differently, support different features, and speak different protocols — there needs to be a way for two unknown apps to introduce themselves before doing anything meaningful together.
 
-Lemitar proposes that every app should support a common capability called the **Receptionist**. When app A wants to interact with app B, it sends an inquiry to B's Receptionist. The address follows the format `<email>#<feature>`, so the inquiry is targeted and unambiguous. The Receptionist responds with what it supports — similar to how a browser and a web server negotiate content types in HTTP, but at the social app layer.
+Lemitar proposes that every app should support a common capability called the **Receptionist**. When app A wants to interact with app B, it sends an inquiry to B's Receptionist. In Social via Email's email-based Addressing Semantics, addresses use `<email>#<attention>`, where the attention can name a feature such as Receptionist. This makes the inquiry targeted and unambiguous. The Receptionist responds with what it supports — similar to how a browser and a web server negotiate content types in HTTP, but at the social app layer.
 
 What makes this more than machine-to-machine (M2M) is the fallback chain. In pure M2M, an unrecognized request is an error. In Lemitar's vision, an unrecognized request moves up a chain:
 
