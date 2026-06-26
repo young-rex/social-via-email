@@ -17,7 +17,7 @@ If you are new here, we recommend reading through the sections in order — it w
 
 **Option A: Use the hosted version**
 
-The app is hosted on GitHub Pages directly from this repository's `docs/` folder — what you see is exactly what's in the repo. No installation needed: [https://young-rex.github.io/social-via-email/](https://young-rex.github.io/social-via-email/).
+The app is hosted from this repository's `docs/` folder — what you see is exactly what's in the repo. No installation needed: [https://social-via-email.com/](https://social-via-email.com/).
 
 **Option B: Run locally**
 

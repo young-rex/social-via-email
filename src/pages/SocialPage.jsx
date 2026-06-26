@@ -109,8 +109,8 @@ function SocialPage() {
           View on GitHub at https://github.com/leminallc/social-via-email/
         </a>
         <br />
-        <a href="https://leminallc.github.io/social-via-email/" target="_blank" rel="noopener noreferrer">
-          Try on GitHub Pages at https://leminallc.github.io/social-via-email/
+        <a href="https://social-via-email.com/" target="_blank" rel="noopener noreferrer">
+          Try at https://social-via-email.com/
         </a>
       </footer>
       {infoDialog && (
